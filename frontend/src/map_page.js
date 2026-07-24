@@ -308,7 +308,7 @@ function filterPOIsByCategory(category) {
         }
         return;
     }
-    
+
     categoryFilterLayerGroup = L.layerGroup().addTo(map);
 
     let matchingFacilities;
@@ -483,6 +483,7 @@ function renderFloorContent(floor) {
     const classroomsEl = document.getElementById('building-panel-classrooms');
     const itemsEl = document.getElementById('building-panel-items');
     const imageEl = document.getElementById('building-floor-image');
+    const imageWrapEl = document.getElementById('building-floor-image-wrap');
     const filterContainer = document.getElementById('building-item-filters');
 
     classroomsEl.className = 'gm-pills-list';
@@ -492,7 +493,13 @@ function renderFloorContent(floor) {
         classroomsEl.innerHTML = '<li style="color:#999; background:none; padding:0;">None listed</li>';
     }
 
-    imageEl.src = floor.image_url || `https://placehold.co/600x375?text=${encodeURIComponent(floor.label || 'Floor Plan')}`;
+    if (floor.image_url) {
+        imageEl.src = floor.image_url;
+        imageWrapEl.style.display = '';
+    } else {
+        imageEl.src = '';
+        imageWrapEl.style.display = 'none';
+    }
 
     currentFloorItems = floor.items || [];
     activeItemFilter = null;
@@ -558,6 +565,20 @@ function closeBuildingPanel() {
 document.getElementById('building-panel-close').addEventListener('click', () => {
     closeBuildingPanel();
 });
+
+function isPointInPolygon(point, polygonCoords) {
+    const x = point[0], y = point[1];
+    let inside = false;
+    for (let i = 0, j = polygonCoords.length - 1; i < polygonCoords.length; j = i++) {
+        const xi = polygonCoords[i][0], yi = polygonCoords[i][1];
+        const xj = polygonCoords[j][0], yj = polygonCoords[j][1];
+        
+        const intersect = ((yi > y) !== (yj > y)) &&
+            (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+        if (intersect) inside = !inside;
+    }
+    return inside;
+}
 
 function transformFacilities(facilities) {
     const buildingPolygons = facilities.filter(f => f.layer_type === 'polygon');

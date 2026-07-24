@@ -1048,12 +1048,12 @@
     "building": "Epsilon Building",
     "floor": "1F"
   },
-  {
+    {
     "id": 58,
-    "name": "Epsilon 16",
+    "name": "Omega 22",
     "layer_type": "classroom",
-    "building": "Epsilon Building",
-    "floor": "1F"
+    "building": "Omega Building",
+    "floor": "2F"
   },
   {
     "id": 59,
@@ -1345,13 +1345,6 @@
   {
     "id": 100,
     "name": "Omega 21",
-    "layer_type": "classroom",
-    "building": "Omega Building",
-    "floor": "2F"
-  },
-  {
-    "id": 101,
-    "name": "Omega 22",
     "layer_type": "classroom",
     "building": "Omega Building",
     "floor": "2F"
