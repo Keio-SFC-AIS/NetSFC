@@ -470,7 +470,18 @@ function renderFloorContent(floor) {
         classroomsEl.innerHTML = '<li style="color:#999; background:none; padding:0;">None listed</li>';
     }
 
-    imageEl.src = floor.image_url || `https://placehold.co/600x375?text=${encodeURIComponent(floor.label || 'Floor Plan')}`;
+    if (floor.image_url) {
+        if (floor.image_url.startsWith('http')) {
+            // localhost env
+            imageEl.src = floor.image_url;
+        } else {
+            const baseUrl = window.ENV.API_HOST.replace(/\/$/, '');
+            const imgPath = floor.image_url.startsWith('/') ? floor.image_url : `/${floor.image_url}`;
+            imageEl.src = `${baseUrl}${imgPath}`;
+        }
+    } else {
+        imageEl.src = floor.image_url || `https://placehold.co/600x375?text=${encodeURIComponent(floor.label || 'Floor Plan')}`;
+    }
 
     currentFloorItems = floor.items || [];
     activeItemFilter = null;
