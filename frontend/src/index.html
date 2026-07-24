@@ -522,9 +522,12 @@
       .floating-title { 
         max-width: 180px; 
       }
-      .category-chips-bar { 
-        left: 210px; 
-        max-width: calc(100vw - 270px); 
+      .category-chips-bar {
+        top: 68px;
+        left: 12px;
+        right: 12px;
+        max-width: none;
+        width: auto;
       }
       .building-panel { 
         top: auto; 
@@ -541,6 +544,36 @@
       .gm-panel-content { 
         flex-direction: column; 
       }
+      .gm-sidebar {
+        flex-direction: row;
+        align-items: center;
+        width: 100%;
+        flex: 0 0 auto;
+        height: auto;
+        padding: 10px 12px;
+        gap: 10px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        border-right: none;
+        border-bottom: 1px solid #ececec;
+      }
+      .gm-floor-label, .gm-filter-label {
+        display: none;
+      }
+      .gm-floor-tabs {
+        flex-direction: row;
+        width: auto;
+        flex-shrink: 0;
+      }
+      .item-filter-list {
+        flex-direction: row;
+        width: auto;
+        flex-shrink: 0;
+        padding-top: 0;
+        padding-left: 10px;
+        border-top: none;
+        border-left: 1px solid #e0e0e0;
+      }
     }
   </style>
 </head>
@@ -550,7 +583,7 @@
 
 <div class="floating-title">
   <h1>SFC Heatmap</h1>
-  <a href="homepage.html">Back to homepage</a>
+  <a href="homepage.html">Back to measurement page</a>
 </div>
 
 <div class="category-chips-bar">
@@ -605,7 +638,7 @@
     </div>
 
     <div class="gm-panel-body">
-      <div class="gm-floor-image-wrap">
+      <div id="building-floor-image-wrap" class="gm-floor-image-wrap">
         <img id="building-floor-image" class="gm-floor-image" src="" alt="Floor layout" />
       </div>
 

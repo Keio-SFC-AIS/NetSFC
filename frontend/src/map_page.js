@@ -175,8 +175,6 @@ function placePOIs(items) {
 
             return;
         }
-
-        console.log('TODO: unsupported coords shape', item);
     });
 }
 
@@ -296,7 +294,18 @@ function filterPOIsByCategory(category) {
         map.removeLayer(categoryFilterLayerGroup);
         categoryFilterLayerGroup = null;
     }
-    if (!category) return;
+
+    if (itemLayerGroup) {
+        map.removeLayer(itemLayerGroup);
+        itemLayerGroup = null;
+    }
+
+    if (!category) {
+        if (currentOpenBuildingName) {
+            showItemsForBuilding(currentOpenBuildingName); 
+        }
+        return;
+    }
 
     categoryFilterLayerGroup = L.layerGroup().addTo(map);
 
@@ -384,6 +393,14 @@ function showItemsForBuilding(buildingName) {
         itemLayerGroup = null;
     }
 
+    // No duplicate pins
+    if (categoryFilterLayerGroup) {
+        map.removeLayer(categoryFilterLayerGroup);
+        categoryFilterLayerGroup = null;
+    }
+    const chipBtns = document.querySelectorAll('.chip-btn');
+    chipBtns.forEach(b => b.classList.remove('active'));
+
     const matchingItems = allPointFacilities.filter(f => f.building === buildingName);
     if (matchingItems.length === 0) return;
 
@@ -420,11 +437,14 @@ function showItemsForBuilding(buildingName) {
     }); 
 }
 
+let currentOpenBuildingName = null;
+
 function openBuildingPanel(item) {
     document.getElementById('building-panel-name').textContent = item.name || 'Unnamed building';
     document.getElementById('building-panel-description').textContent = item.description || '';
 
     currentBuildingFloors = item.floors || [];
+    currentOpenBuildingName = item.building || item.name;
 
     showItemsForBuilding(item.building || item.name);
 
@@ -461,6 +481,7 @@ function renderFloorContent(floor) {
     const classroomsEl = document.getElementById('building-panel-classrooms');
     const itemsEl = document.getElementById('building-panel-items');
     const imageEl = document.getElementById('building-floor-image');
+    const imageWrapEl = document.getElementById('building-floor-image-wrap');
     const filterContainer = document.getElementById('building-item-filters');
 
     classroomsEl.className = 'gm-pills-list';
@@ -472,15 +493,16 @@ function renderFloorContent(floor) {
 
     if (floor.image_url) {
         if (floor.image_url.startsWith('http')) {
-            // localhost env
             imageEl.src = floor.image_url;
         } else {
             const baseUrl = window.ENV.API_HOST.replace(/\/$/, '');
             const imgPath = floor.image_url.startsWith('/') ? floor.image_url : `/${floor.image_url}`;
             imageEl.src = `${baseUrl}${imgPath}`;
         }
+        if (imageWrapEl) imageWrapEl.style.display = '';
     } else {
-        imageEl.src = floor.image_url || `https://placehold.co/600x375?text=${encodeURIComponent(floor.label || 'Floor Plan')}`;
+        imageEl.src = '';
+        if (imageWrapEl) imageWrapEl.style.display = 'none';
     }
 
     currentFloorItems = floor.items || [];
@@ -540,6 +562,8 @@ function closeBuildingPanel() {
         map.removeLayer(itemLayerGroup);
         itemLayerGroup = null;
     }
+
+    currentOpenBuildingName = null;
 }
 
 document.getElementById('building-panel-close').addEventListener('click', () => {
