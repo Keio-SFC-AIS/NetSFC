@@ -89,8 +89,8 @@ window.onload = function() {
 };
 
 function loadPOIs() {
-    const url = `${window.ENV.API_HOST}/api/pois`;
-    fetch(url)
+    // const url = `${window.ENV.API_HOST}/api/pois`;
+    fetch("/data/facilities.json")
         .then(response => {
             if (!response.ok) {
                 throw new Error(`API request failed: ${response.status}`);
@@ -296,8 +296,19 @@ function filterPOIsByCategory(category) {
         map.removeLayer(categoryFilterLayerGroup);
         categoryFilterLayerGroup = null;
     }
-    if (!category) return;
 
+    if (itemLayerGroup) {
+        map.removeLayer(itemLayerGroup);
+        itemLayerGroup = null;
+    }
+
+    if (!category) {
+        if (currentOpenBuildingName) {
+            showItemsForBuilding(currentOpenBuildingName); 
+        }
+        return;
+    }
+    
     categoryFilterLayerGroup = L.layerGroup().addTo(map);
 
     let matchingFacilities;
@@ -384,6 +395,14 @@ function showItemsForBuilding(buildingName) {
         itemLayerGroup = null;
     }
 
+    // No duplicate pins
+    if (categoryFilterLayerGroup) {
+        map.removeLayer(categoryFilterLayerGroup);
+        categoryFilterLayerGroup = null;
+    }
+    const chipBtns = document.querySelectorAll('.chip-btn');
+    chipBtns.forEach(b => b.classList.remove('active'));
+
     const matchingItems = allPointFacilities.filter(f => f.building === buildingName);
     if (matchingItems.length === 0) return;
 
@@ -420,11 +439,14 @@ function showItemsForBuilding(buildingName) {
     }); 
 }
 
+let currentOpenBuildingName = null;
+
 function openBuildingPanel(item) {
     document.getElementById('building-panel-name').textContent = item.name || 'Unnamed building';
     document.getElementById('building-panel-description').textContent = item.description || '';
 
     currentBuildingFloors = item.floors || [];
+    currentOpenBuildingName = item.building || item.name;
 
     showItemsForBuilding(item.building || item.name);
 
@@ -529,6 +551,8 @@ function closeBuildingPanel() {
         map.removeLayer(itemLayerGroup);
         itemLayerGroup = null;
     }
+
+    currentOpenBuildingName = null;
 }
 
 document.getElementById('building-panel-close').addEventListener('click', () => {
