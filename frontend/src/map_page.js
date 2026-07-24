@@ -37,6 +37,7 @@ let categoryFilterLayerGroup = null; // Layer for global category filters (e.g.,
 let currentBuildingFloors = [];
 let currentFloorItems = [];  
 let activeItemFilter = null;
+let allRawFacilities = [];
 
 
 window.onload = function() {
@@ -86,6 +87,7 @@ window.onload = function() {
     initGeolocation();
     initSettingsModal();
     initCategoryChips();
+    initClassroomPanel();
 };
 
 function loadPOIs() {
@@ -98,6 +100,7 @@ function loadPOIs() {
             return response.json();
         })
         .then(facilities => {
+            allRawFacilities = facilities;
             const { buildingItems, pointItems } = transformFacilities(facilities);
             allPointFacilities = pointItems;
             placePOIs(buildingItems);
@@ -471,6 +474,107 @@ function openBuildingPanel(item) {
     document.getElementById('building-panel').classList.add('open');
 }
 
+function initClassroomPanel() {
+    const closeBtn = document.getElementById('classroom-panel-close');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeClassroomPanel);
+    }
+
+    const classroomsEl = document.getElementById('building-panel-classrooms');
+    if (classroomsEl) {
+        classroomsEl.addEventListener('click', (e) => {
+            const li = e.target.closest('li');
+            if (li && li.textContent !== 'None listed') {
+                const classroomName = li.textContent.trim();
+                openClassroomPanel(classroomName);
+            }
+        });
+    }
+}
+
+function openClassroomPanel(classroomName) {
+    const baseUrl = window.ENV.API_HOST.replace(/\/$/, '');
+
+    const target = allRawFacilities.find(f => f.name === classroomName && f.layer_type === 'classroom') 
+                   || { name: classroomName };
+    const details = target.details || {};
+
+    document.getElementById('cr-title').textContent = target.name || classroomName;
+    document.getElementById('cr-building-tag').textContent = target.building || 'CAMPUS';
+
+    const galleryContainer = document.getElementById('cr-gallery-container');
+    const heroImg = document.getElementById('cr-hero-img');
+    const heroCaption = document.getElementById('cr-hero-caption');
+    const thumbnailsRow = document.getElementById('cr-thumbnails-row');
+
+    const images = (details.images && details.images.length > 0) ? details.images : [];
+
+    if (images.length > 0) {
+        galleryContainer.style.display = 'flex';
+        thumbnailsRow.innerHTML = '';
+
+        const getFullUrl = (url) => url.startsWith('http') ? url : `${baseUrl}/${url.replace(/^\//, '')}`;
+
+        heroImg.src = getFullUrl(images[0].url);
+        heroCaption.textContent = images[0].label || 'Overview';
+
+        images.forEach((imgData, index) => {
+            const thumbUrl = getFullUrl(imgData.url);
+            const thumb = document.createElement('div');
+            thumb.className = `cr-thumb-item ${index === 0 ? 'active' : ''}`;
+            thumb.innerHTML = `<img src="${thumbUrl}" alt="${imgData.label}"><span>${imgData.label || ''}</span>`;
+
+            thumb.addEventListener('click', () => {
+                document.querySelectorAll('.cr-thumb-item').forEach(t => t.classList.remove('active'));
+                thumb.classList.add('active');
+
+                heroImg.classList.add('loading');
+                heroImg.src = thumbUrl;
+                heroCaption.textContent = imgData.label || '';
+                
+                setTimeout(() => {
+                    heroImg.classList.remove('loading');
+                }, 50);
+            });
+
+            thumbnailsRow.appendChild(thumb);
+        });
+    } else {
+        galleryContainer.style.display = 'none';
+    }
+
+    document.getElementById('cr-description').textContent = details.description || 'No description available for this classroom.';
+    document.getElementById('cr-capacity').textContent = details.capacity || 'N/A';
+    document.getElementById('cr-podium').textContent = details.podium_type || 'N/A';
+    document.getElementById('cr-desk').textContent = details.desk_type || 'N/A';
+    document.getElementById('cr-notes').textContent = details.notes || 'N/A';
+
+    const equipEl = document.getElementById('cr-equipment');
+    if (equipEl) {
+        const equipment = details.equipment || [];
+        equipEl.innerHTML = equipment.length > 0 
+            ? equipment.map(item => `<li>${item}</li>`).join('')
+            : '<li style="color:#999;">Standard classroom equipment</li>';
+    }
+
+    const linksEl = document.getElementById('cr-links');
+    if (linksEl) {
+        const links = details.links || [];
+        linksEl.innerHTML = links.length > 0
+            ? links.map(link => `<a href="${link.url}" target="_blank" rel="noopener" style="color:#1a73e8; text-decoration:none;">🔗 ${link.title}</a>`).join('')
+            : '<span style="color:#999;">No links available</span>';
+    }
+
+    const panel = document.getElementById('classroom-panel');
+    if (panel) panel.classList.add('open');
+}
+
+function closeClassroomPanel() {
+    const panel = document.getElementById('classroom-panel');
+    if (panel) panel.classList.remove('open');
+}
+
+
 function selectFloor(index) {
     const tabs = document.querySelectorAll('.building-floor-tab');
     tabs.forEach((tab, i) => tab.classList.toggle('active', i === index));
@@ -557,12 +661,12 @@ function renderItemsList() {
 
 function closeBuildingPanel() {
     document.getElementById('building-panel').classList.remove('open');
+    closeClassroomPanel();
 
     if (itemLayerGroup) {
         map.removeLayer(itemLayerGroup);
         itemLayerGroup = null;
     }
-
     currentOpenBuildingName = null;
 }
 
