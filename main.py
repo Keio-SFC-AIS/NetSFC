@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException, status, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 import sqlite3, os, asyncio, json
 from typing import Any, Dict, List, Coroutine
@@ -21,6 +22,9 @@ if not APITITLE or not VERSION or not DB_NAME:
 
 app = FastAPI(title=APITITLE, version=VERSION)
 init_db(DB_NAME)
+
+if os.path.exists("data/images"):
+    app.mount("/data/images", StaticFiles(directory="data/images"), name="data_images")
 
 if not origins or RUNTIME == "DEBUG":
     origins = ["*"]
