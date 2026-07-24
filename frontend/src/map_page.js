@@ -492,11 +492,17 @@ function renderFloorContent(floor) {
     }
 
     if (floor.image_url) {
-        imageEl.src = floor.image_url;
-        imageWrapEl.style.display = '';
+        if (floor.image_url.startsWith('http')) {
+            imageEl.src = floor.image_url;
+        } else {
+            const baseUrl = window.ENV.API_HOST.replace(/\/$/, '');
+            const imgPath = floor.image_url.startsWith('/') ? floor.image_url : `/${floor.image_url}`;
+            imageEl.src = `${baseUrl}${imgPath}`;
+        }
+        if (imageWrapEl) imageWrapEl.style.display = '';
     } else {
         imageEl.src = '';
-        imageWrapEl.style.display = 'none';
+        if (imageWrapEl) imageWrapEl.style.display = 'none';
     }
 
     currentFloorItems = floor.items || [];
