@@ -1483,7 +1483,7 @@
       "images": [
         { "url": "data/images/classrooms/e15a_m.jpg", "label": "Full View" },
         { "url": "data/images/classrooms/e15f_m.jpg", "label": "Front View" },
-        { "url": "data/images/classrooms/e15r_m.jpg", "label": "AV Podium" }
+        { "url": "data/images/classrooms/e15r_m.jpg", "label": "Display" }
       ],
       "equipment": [
         "65-inch Touch Display",
@@ -1511,7 +1511,7 @@
       "images": [
         { "url": "data/images/classrooms/e16a_m.jpg", "label": "Full View" },
         { "url": "data/images/classrooms/e16f_m.jpg", "label": "Front View" },
-        { "url": "data/images/classrooms/e16r_m.jpg", "label": "AV Podium" }
+        { "url": "data/images/classrooms/e16r_m.jpg", "label": "Display" }
       ],
       "equipment": [
         "65-inch Touch Display",
@@ -1784,7 +1784,7 @@
       "images": [
         { "url": "data/images/classrooms/i13a_m.jpg", "label": "Full View" },
         { "url": "data/images/classrooms/i13f_m.jpg", "label": "Front View" },
-        { "url": "data/images/classrooms/i13r_m.jpg", "label": "AV Podium" }
+        { "url": "data/images/classrooms/i13r_m.jpg", "label": "Display" }
       ],
       "equipment": [
         "65-inch Touch Display",
@@ -1812,7 +1812,7 @@
       "images": [
         { "url": "data/images/classrooms/i14a_m.jpg", "label": "Full View" },
         { "url": "data/images/classrooms/i14f_m.jpg", "label": "Front View" },
-        { "url": "data/images/classrooms/i14r_m.jpg", "label": "AV Podium" }
+        { "url": "data/images/classrooms/i14r_m.jpg", "label": "Display" }
       ],
       "equipment": [
         "65-inch Touch Display",
@@ -1871,7 +1871,7 @@
       "images": [
         { "url": "data/images/classrooms/i16a_m.jpg", "label": "Full View" },
         { "url": "data/images/classrooms/i16f_m.jpg", "label": "Front View" },
-        { "url": "data/images/classrooms/i16r_m.jpg", "label": "AV Podium" }
+        { "url": "data/images/classrooms/i16r_m.jpg", "label": "Display" }
       ],
       "equipment": [
         "65-inch Touch Display",
@@ -2166,7 +2166,7 @@
       "images": [
         { "url": "data/images/classrooms/o14a_m.jpg", "label": "Full View" },
         { "url": "data/images/classrooms/o14f_m.jpg", "label": "Front View" },
-        { "url": "data/images/classrooms/o14r_m.jpg", "label": "AV Podium" }
+        { "url": "data/images/classrooms/o14r_m.jpg", "label": "Display" }
       ],
       "equipment": [
         "65-inch Touch Display",
@@ -2345,7 +2345,7 @@
       "images": [
         { "url": "data/images/classrooms/l12a_m.jpg", "label": "Full View" },
         { "url": "data/images/classrooms/l12f_m.jpg", "label": "Front View" },
-        { "url": "data/images/classrooms/l12r_m.jpg", "label": "AV Podium" }
+        { "url": "data/images/classrooms/l12r_m.jpg", "label": "Display" }
       ],
       "equipment": [
         "65-inch Touch Display",
@@ -2603,7 +2603,7 @@
       "images": [
         { "url": "data/images/classrooms/l16a_m.jpg", "label": "Full View" },
         { "url": "data/images/classrooms/l16f_m.jpg", "label": "Front View" },
-        { "url": "data/images/classrooms/l16r_m.jpg", "label": "AV Podium" }
+        { "url": "data/images/classrooms/l16r_m.jpg", "label": "Display" }
       ],
       "equipment": [
         "65-inch Touch Display",
