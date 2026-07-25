@@ -16,6 +16,7 @@ class Facility(TypedDict):
     floor: str | None
     coords: List[Any]
     floor_images: dict[str, str] | None
+    details: dict[str, Any] | None
 
 
 def load_facilities_json() -> list[Facility]:
@@ -54,6 +55,7 @@ def load_facilities_json() -> list[Facility]:
             "floor": item.get("floor"),
             "coords": coords if isinstance(coords, list) else [],
             "floor_images": item.get("floor_images"),
+            "details": item.get("details"),
         })
 
     return cleaned
@@ -96,7 +98,8 @@ def init_db(db_name: str) -> None:
             building TEXT,
             floor TEXT,
             coords TEXT NOT NULL,
-            floor_images TEXT
+            floor_images TEXT,
+            details TEXT
         )
     """)
 
@@ -104,6 +107,7 @@ def init_db(db_name: str) -> None:
     ensure_column(cursor, 'campus_pois', 'floor', 'TEXT')
     ensure_column(cursor, 'campus_pois', 'coords', 'TEXT DEFAULT "[]"')
     ensure_column(cursor, 'campus_pois', 'floor_images', 'TEXT DEFAULT "{}"')
+    ensure_column(cursor, 'campus_pois', 'details', 'TEXT DEFAULT "{}"')
 
     RUNTIME: str | None = os.getenv("RUNTIME")
     if RUNTIME and RUNTIME.upper() == "DEBUG":
@@ -113,8 +117,8 @@ def init_db(db_name: str) -> None:
     for facility in facilities:
         cursor.execute("""
             INSERT OR REPLACE INTO campus_pois 
-            (id, layer_type, name, building, floor, coords, floor_images)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            (id, layer_type, name, building, floor, coords, floor_images, details)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             facility["id"],
             facility["layer_type"],
@@ -123,6 +127,7 @@ def init_db(db_name: str) -> None:
             facility["floor"],
             json.dumps(facility["coords"], ensure_ascii=False),
             json.dumps(facility.get("floor_images") or {}, ensure_ascii=False),
+            json.dumps(facility.get("details") or {}, ensure_ascii=False),
         ))
 
     conn.commit()
