@@ -2688,21 +2688,26 @@
     "building": "Omega Building",
     "floor": "1F",
     "details": {
-      "capacity": "72 seats",
-      "podium_type": "AV Rack",
-      "desk_type": "Adaptive Learning",
+      "capacity": "386 seats",
+      "podium_type": "AV Control Desk",
+      "desk_type": "Long Table and Storage Chairs",
       "notes": "Renovated March 2019",
-      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "description": "This is a large lecture hall with 386 seats. It is equipped with two projectors—one 200-inch and one 150-inch—that can display images from computer screens or Blu-ray players. Video from the ceiling-mounted camera and audio from the microphones can be used for remote video conferences (such as Zoom).",
       "images": [
-        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
-        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
-        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+        { "url": "data/images/classrooms/w11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/w11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/w11r_m.jpg", "label": "AV Podium" }
       ],
       "equipment": [
-        "2 projectors",
-        "BD/DVD player",
+        "1 x 200-inch DLP projector",
+        "2 x 150-inch DLP projectors",
+        "Blu-ray player",
         "Document camera",
-        "Wired/wireless microphones",
+        "Permanent Remote Machine",
+        "6 Wireless Microphones",
+        "Classroom-to-Classroom Transmission (Fiber Optic Transmission)",
+        "HDMI Cable",
+        "Motorized Blinds",
         "USB video capture device (can be used for web conferencing)"
       ],
       "links": [
@@ -2717,21 +2722,25 @@
     "layer_type": "classroom",
     "building": "Omega Building",
     "floor": "1F","details": {
-      "capacity": "72 seats",
-      "podium_type": "AV Rack",
-      "desk_type": "Adaptive Learning",
-      "notes": "Renovated March 2019",
-      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "capacity": "285 seats",
+      "podium_type": "AV Control Desk",
+      "desk_type": "All-in-one",
+      "notes": "Renovated March 2020",
+      "description": "This is a large lecture hall with 285 seats. It is equipped with two 150-inch projectors, which can display computer screens and Blu-ray video content. Video from the ceiling-mounted camera and audio from the microphones can be used for remote video conferences (such as Zoom).",
       "images": [
-        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
-        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
-        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+        { "url": "data/images/classrooms/w12a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/w12f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/w12r_m.jpg", "label": "AV Podium" }
       ],
       "equipment": [
-        "2 projectors",
-        "BD/DVD player",
-        "Document camera",
-        "Wired/wireless microphones",
+        "2 x 150-inch DLP projectors",
+        "Blu-ray player",
+        "Document camera (Retractable)",
+        "Permanent Remote Machine",
+        "4 Wireless Microphones",
+        "1 Wired Microphone",
+        "HDMI Cable",
+        "Motorized Blinds",
         "USB video capture device (can be used for web conferencing)"
       ],
       "links": [
@@ -2747,21 +2756,26 @@
     "building": "Omega Building",
     "floor": "2F",
     "details": {
-      "capacity": "72 seats",
-      "podium_type": "AV Rack",
-      "desk_type": "Adaptive Learning",
+      "capacity": "388 seats",
+      "podium_type": "AV Control Desk",
+      "desk_type": "Long Table and Storage Chairs",
       "notes": "Renovated March 2019",
-      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "description": "This is a large lecture hall with 388 seats. It is equipped with two projectors—one 200-inch and one 150-inch—which can display images from computer screens or Blu-ray players. Video from the ceiling-mounted camera and audio from the microphones can be used for remote video conferences (such as Zoom).",
       "images": [
-        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
-        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
-        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+        { "url": "data/images/classrooms/w21a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/w21f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/w21r_m.jpg", "label": "AV Podium" }
       ],
       "equipment": [
-        "2 projectors",
-        "BD/DVD player",
+        "1 x 200-inch DLP projector",
+        "2 x 150-inch DLP projectors",
+        "Blu-ray player",
         "Document camera",
-        "Wired/wireless microphones",
+        "Permanent Remote Machine",
+        "6 Wireless Microphones",
+        "Classroom-to-Classroom Transmission (Fiber Optic Transmission)",
+        "HDMI Cable",
+        "Motorized Blinds",
         "USB video capture device (can be used for web conferencing)"
       ],
       "links": [
@@ -2771,7 +2785,7 @@
     }
   },
   {
-    "id": 100,
+    "id": 101,
     "name": "Theta",
     "layer_type": "classroom",
     "building": "Theta Building",
