@@ -1233,373 +1233,1619 @@
     "name": "Epsilon 11",
     "layer_type": "classroom",
     "building": "Epsilon Building",
-    "floor": "1F"
+    "floor": "1F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 49,
     "name": "Epsilon 12",
     "layer_type": "classroom",
     "building": "Epsilon Building",
-    "floor": "1F"
+    "floor": "1F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Control Desk",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated August 2018",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto a wall-mounted whiteboard or a 65-inch display using a projector. Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e12a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e12f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e12r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "65-inch Touch Display",
+        "Document Camera",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 50,
     "name": "Epsilon 21",
     "layer_type": "classroom",
     "building": "Epsilon Building",
-    "floor": "2F"
+    "floor": "2F",
+    "details": {
+      "capacity": "70 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2021",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e21a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e21f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e21r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 51,
     "name": "Epsilon 22",
     "layer_type": "classroom",
     "building": "Epsilon Building",
-    "floor": "2F"
+    "floor": "2F",
+    "details": {
+      "capacity": "140 seats",
+      "podium_type": "AV Control Desk",
+      "desk_type": "2-Person Seating",
+      "notes": "Renovated March 2021",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the screen using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e22a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e22f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e22r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 52,
     "name": "Epsilon 23",
     "layer_type": "classroom",
     "building": "Epsilon Building",
-    "floor": "2F"
+    "floor": "2F",
+    "details": {
+      "capacity": "41 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated August 2017",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e23a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e23f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e23r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "1 projector",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 53,
     "name": "Epsilon 24",
     "layer_type": "classroom",
     "building": "Epsilon Building",
-    "floor": "2F"
+    "floor": "2F",
+    "details": {
+      "capacity": "40 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2021",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e24a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e24f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e24r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "1 projector",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "Celing Microphone",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 54,
     "name": "Epsilon 13",
     "layer_type": "classroom",
     "building": "Epsilon Building",
-    "floor": "1F"
+    "floor": "1F",
+    "details": {
+      "capacity": "40 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "2-Person Seating",
+      "notes": "Renovated August 2017",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto a 120-inch screen using a projector. Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e13a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e13f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e13r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "1 projector",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 55,
     "name": "Epsilon 14",
     "layer_type": "classroom",
     "building": "Epsilon Building",
-    "floor": "1F"
+    "floor": "1F",
+    "details": {
+      "capacity": "14 seats",
+      "podium_type": "None",
+      "desk_type": "2-Person Seating",
+      "notes": "Renovated March 2017",
+      "description": "PC, BD, and DVD content can be displayed on a 65-inch touchscreen display.",
+      "images": [
+        { "url": "data/images/classrooms/e14a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e14f_m.jpg", "label": "Front View" }
+      ],
+      "equipment": [
+        "65-inch Touch Display",
+        "BD/DVD player",
+        "Document camera"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 56,
     "name": "Epsilon 15",
     "layer_type": "classroom",
     "building": "Epsilon Building",
-    "floor": "1F"
+    "floor": "1F",
+    "details": {
+      "capacity": "40 seats",
+      "podium_type": "Display",
+      "desk_type": "2-Person Seating",
+      "notes": "Renovated March 2017",
+      "description": "PC, BD, and DVD content can be displayed on a 65-inch touchscreen display.",
+      "images": [
+        { "url": "data/images/classrooms/e15a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e15f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e15r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "65-inch Touch Display",
+        "BD/DVD player",
+        "Document camera"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 57,
     "name": "Epsilon 16",
     "layer_type": "classroom",
     "building": "Epsilon Building",
-    "floor": "1F"
+    "floor": "1F",
+    "details": {
+      "capacity": "39 seats",
+      "podium_type": "Display",
+      "desk_type": "2-Person Seating",
+      "notes": "Renovated March 2017",
+      "description": "PC, BD, and DVD content can be displayed on a 65-inch touchscreen display.",
+      "images": [
+        { "url": "data/images/classrooms/e16a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e16f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e16r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "65-inch Touch Display",
+        "BD/DVD player",
+        "Document camera"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 58,
     "name": "Omega 22",
     "layer_type": "classroom",
     "building": "Omega Building",
-    "floor": "2F"
+    "floor": "2F",
+    "details": {
+      "capacity": "285 seats",
+      "podium_type": "AV Control Desk",
+      "desk_type": "Long Table and Storage Chairs",
+      "notes": "Renovated March 2020",
+      "description": "This is a large lecture hall with 285 seats. It is equipped with two 150-inch projectors, which can display images from computer screens or Blu-ray playback. Video from the ceiling-mounted camera and audio from the microphones can be used for remote video conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/w22a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/w22f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/w22r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 150-inch DLP projectors",
+        "Blu-ray player",
+        "Document camera(Retractable)",
+        "Permanently Installed Remote Equipment",
+        "4 Wireless microphones",
+        "1 Wired Microphone",
+        "HDMI Cable",
+        "Motorized Blinds",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 59,
     "name": "Epsilon 17",
     "layer_type": "classroom",
     "building": "Epsilon Building",
-    "floor": "1F"
+    "floor": "1F",
+    "details": {
+      "capacity": "80 seats",
+      "podium_type": "AV Control Desk",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2022",
+      "description": "PC, BD, and DVD content can be displayed on 85-inch 4K-compatible screens on the front (1 screen) and rear (1 screen), as well as on three 65-inch 4K-compatible screens on the hallway-side wall. Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e17a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e17f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e17r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "5x 4K Displays",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 60,
     "name": "Epsilon 18",
     "layer_type": "classroom",
     "building": "Epsilon Building",
-    "floor": "1F"
+    "floor": "1F",
+    "details": {
+      "capacity": "38 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "2-Person Seating",
+      "notes": "Renovated August 2017",
+      "description": "Video from a PC, Blu-ray, or DVD can be projected onto a 120-inch screen using a projector. Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e18a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e18f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e18r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "1 projector",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 61,
     "name": "Iota 11",
     "layer_type": "classroom",
     "building": "Iota Building",
-    "floor": "1F"
+    "floor": "1F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 62,
     "name": "Iota 12",
     "layer_type": "classroom",
     "building": "Iota Building",
-    "floor": "1F"
+    "floor": "1F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 63,
     "name": "Iota 21",
     "layer_type": "classroom",
     "building": "Iota Building",
-    "floor": "2F"
+    "floor": "2F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 64,
     "name": "Iota 22",
     "layer_type": "classroom",
     "building": "Iota Building",
-    "floor": "2F"
+    "floor": "2F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 65,
     "name": "Iota 23",
     "layer_type": "classroom",
     "building": "Iota Building",
-    "floor": "2F"
+    "floor": "2F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 66,
     "name": "Iota 13",
     "layer_type": "classroom",
     "building": "Iota Building",
-    "floor": "1F"
+    "floor": "1F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 67,
     "name": "Iota 14",
     "layer_type": "classroom",
     "building": "Iota Building",
-    "floor": "1F"
+    "floor": "1F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 68,
     "name": "Iota 15",
     "layer_type": "classroom",
     "building": "Iota Building",
-    "floor": "1F"
+    "floor": "1F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 69,
     "name": "Iota 16",
     "layer_type": "classroom",
     "building": "Iota Building",
-    "floor": "1F"
+    "floor": "1F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 70,
     "name": "Iota 17",
     "layer_type": "classroom",
     "building": "Iota Building",
-    "floor": "1F"
+    "floor": "1F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 71,
     "name": "Iota 18",
     "layer_type": "classroom",
     "building": "Iota Building",
-    "floor": "1F"
+    "floor": "1F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 72,
     "name": "Omicron 11",
     "layer_type": "classroom",
     "building": "Omicron Building",
-    "floor": "1F"
+    "floor": "1F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 73,
     "name": "Omicron 12",
     "layer_type": "classroom",
     "building": "Omicron Building",
-    "floor": "1F"
+    "floor": "1F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 74,
     "name": "Omicron 21",
     "layer_type": "classroom",
     "building": "Omicron Building",
-    "floor": "2F"
+    "floor": "2F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 75,
     "name": "Omicron 22",
     "layer_type": "classroom",
     "building": "Omicron Building",
-    "floor": "2F"
+    "floor": "2F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 76,
     "name": "Omicron 23",
     "layer_type": "classroom",
     "building": "Omicron Building",
-    "floor": "2F"
+    "floor": "2F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 77,
     "name": "Omicron 24",
     "layer_type": "classroom",
     "building": "Omicron Building",
-    "floor": "2F"
+    "floor": "2F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 78,
     "name": "Omicron 13",
     "layer_type": "classroom",
     "building": "Omicron Building",
-    "floor": "1F"
+    "floor": "1F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 79,
     "name": "Omicron 14",
     "layer_type": "classroom",
     "building": "Omicron Building",
-    "floor": "1F"
+    "floor": "1F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 80,
     "name": "Omicron 15",
     "layer_type": "classroom",
     "building": "Omicron Building",
-    "floor": "1F"
+    "floor": "1F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 81,
     "name": "Omicron 16",
     "layer_type": "classroom",
     "building": "Omicron Building",
-    "floor": "1F"
+    "floor": "1F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 82,
     "name": "Omicron 17",
     "layer_type": "classroom",
     "building": "Omicron Building",
-    "floor": "1F"
+    "floor": "1F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 83,
     "name": "Omicron 18",
     "layer_type": "classroom",
     "building": "Omicron Building",
-    "floor": "1F"
+    "floor": "1F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 84,
     "name": "Lambda 11",
     "layer_type": "classroom",
     "building": "Lambda Building",
-    "floor": "1F"
+    "floor": "1F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 85,
     "name": "Lambda 12",
     "layer_type": "classroom",
     "building": "Lambda Building",
-    "floor": "1F"
+    "floor": "1F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 86,
     "name": "Lambda 13",
     "layer_type": "classroom",
     "building": "Lambda Building",
-    "floor": "1F"
+    "floor": "1F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 87,
     "name": "Lambda 21",
     "layer_type": "classroom",
     "building": "Lambda Building",
-    "floor": "2F"
+    "floor": "2F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 88,
     "name": "Lambda 22",
     "layer_type": "classroom",
     "building": "Lambda Building",
-    "floor": "2F"
+    "floor": "2F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 89,
     "name": "Lambda 23",
     "layer_type": "classroom",
     "building": "Lambda Building",
-    "floor": "2F"
+    "floor": "2F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 90,
     "name": "Lambda 24",
     "layer_type": "classroom",
     "building": "Lambda Building",
-    "floor": "2F"
+    "floor": "2F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 91,
     "name": "Lambda 25",
     "layer_type": "classroom",
     "building": "Lambda Building",
-    "floor": "2F"
+    "floor": "2F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 92,
     "name": "Lambda 14",
     "layer_type": "classroom",
     "building": "Lambda Building",
-    "floor": "1F"
+    "floor": "1F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 93,
     "name": "Lambda 15",
     "layer_type": "classroom",
     "building": "Lambda Building",
-    "floor": "1F"
+    "floor": "1F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 94,
     "name": "Lambda 16",
     "layer_type": "classroom",
     "building": "Lambda Building",
-    "floor": "1F"
+    "floor": "1F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 95,
     "name": "Lambda 17",
     "layer_type": "classroom",
     "building": "Lambda Building",
-    "floor": "1F"
+    "floor": "1F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 96,
     "name": "Lambda 18",
     "layer_type": "classroom",
     "building": "Lambda Building",
-    "floor": "1F"
+    "floor": "1F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 97,
     "name": "Lambda 19",
     "layer_type": "classroom",
     "building": "Lambda Building",
-    "floor": "1F"
+    "floor": "1F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 98,
     "name": "Omega 11",
     "layer_type": "classroom",
     "building": "Omega Building",
-    "floor": "1F"
+    "floor": "1F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 99,
     "name": "Omega 12",
     "layer_type": "classroom",
     "building": "Omega Building",
-    "floor": "1F"
+    "floor": "1F","details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   },
   {
     "id": 100,
     "name": "Omega 21",
     "layer_type": "classroom",
     "building": "Omega Building",
-    "floor": "2F"
+    "floor": "2F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
+  },
+  {
+    "id": 100,
+    "name": "Theta",
+    "layer_type": "classroom",
+    "building": "Theta Building",
+    "floor": "1F",
+    "details": {
+      "capacity": "72 seats",
+      "podium_type": "AV Rack",
+      "desk_type": "Adaptive Learning",
+      "notes": "Renovated March 2019",
+      "description": "Video from PCs, Blu-ray, and DVD players can be projected onto the wall-mounted whiteboard using a projector.Video from the ceiling-mounted camera and audio from the microphone can be used for remote PC conferences (such as Zoom).",
+      "images": [
+        { "url": "data/images/classrooms/e11a_m.jpg", "label": "Full View" },
+        { "url": "data/images/classrooms/e11f_m.jpg", "label": "Front View" },
+        { "url": "data/images/classrooms/e11r_m.jpg", "label": "AV Podium" }
+      ],
+      "equipment": [
+        "2 projectors",
+        "BD/DVD player",
+        "Document camera",
+        "Wired/wireless microphones",
+        "USB video capture device (can be used for web conferencing)"
+      ],
+      "links": [
+        { "title": "Web Conference Setup Guide", "url": "#" },
+        { "title": "AV Equipment Instruction Manual", "url": "#" }
+      ]
+    }
   }
-
-
 
 ]
