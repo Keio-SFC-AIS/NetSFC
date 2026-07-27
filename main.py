@@ -48,6 +48,7 @@ class MeasurementReport(BaseModel):
 class POIResponse(BaseModel):
     id: int
     name: str
+    alias: str | None = None
     layer_type: str
     building: str | None = None
     floor: str | None = None
@@ -127,7 +128,7 @@ async def get_all_pois():
         conn = sqlite3.connect(DB_NAME)
         cursor = conn.cursor()
         cursor.execute('''
-            SELECT id, name, layer_type, building, floor, coords, floor_images, details
+            SELECT id, name, alias, layer_type, building, floor, coords, floor_images, details
             FROM campus_pois
         ''')
         rows = cursor.fetchall()
@@ -136,12 +137,13 @@ async def get_all_pois():
             {
                 "id": row[0],
                 "name": row[1],
-                "layer_type": row[2],
-                "building": row[3],
-                "floor": row[4],
-                "coords": json.loads(row[5]) if row[5] else [],
-                "floor_images": json.loads(row[6]) if row[6] else {},
-                "details": json.loads(row[7]) if row[7] else {},
+                "alias": row[2],
+                "layer_type": row[3],
+                "building": row[4],
+                "floor": row[5],
+                "coords": json.loads(row[6]) if row[6] else [],
+                "floor_images": json.loads(row[7]) if row[7] else {},
+                "details": json.loads(row[8]) if row[8] else {},
             }
             for row in rows
         ]
@@ -158,7 +160,7 @@ async def get_layer_items(layerType: str):
         conn = sqlite3.connect(DB_NAME)
         cursor = conn.cursor()
         cursor.execute('''
-            SELECT id, name, layer_type, building, floor, coords, floor_images
+            SELECT id, name, alias, layer_type, building, floor, coords, floor_images
             FROM campus_pois 
             WHERE layer_type = ?
         ''', (layerType,))
@@ -168,11 +170,12 @@ async def get_layer_items(layerType: str):
             {
                 "id": row[0],
                 "name": row[1],
-                "layer_type": row[2],
-                "building": row[3],
-                "floor": row[4],
-                "coords": json.loads(row[5]) if row[5] else [],
-                "floor_images": json.loads(row[6]) if row[6] else {},
+                "alias": row[2],
+                "layer_type": row[3],
+                "building": row[4],
+                "floor": row[5],
+                "coords": json.loads(row[6]) if row[6] else [],
+                "floor_images": json.loads(row[7]) if row[7] else {},
             }
             for row in rows
         ]

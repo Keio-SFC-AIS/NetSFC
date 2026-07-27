@@ -16,14 +16,25 @@ const POI_ICONS = {
     water_fountain: '🚰',
     elevator: '🛗',
     accessible_washroom: '♿',
+    vending_machine: '🥤',
+    aed: '❤️',
     building: '🏢'
 };
 
 const LABEL_ZOOM_THRESHOLD = 21;
+const GLOBAL_AMENITY_TYPES = ['aed', 'accessible_washroom', 'washroom', 'elevator', 'water_fountain', 'printer', 'vending_machine'];
+const GLOBAL_AMENITY_MAX_ICONS = 5;
+const GLOBAL_AMENITY_MIN_ZOOM = 15.5;
+const GLOBAL_AMENITY_MAX_ZOOM = 19.5;
+const CROSS_FLOOR_VISIBLE_TYPES = ['elevator'];
 
 let map;
 let heatLayer;
 let heatPoints = [];
+let buildingAliasLayerGroup = null;
+let buildingAliasMarkers = [];
+let buildingAmenityLayerGroup = null;
+let buildingAmenityMarkers = [];
 
 let userLocationMarker = null;
 let userAccuracyCircle = null;
@@ -38,6 +49,7 @@ let currentBuildingFloors = [];
 let currentFloorItems = [];  
 let activeItemFilter = null;
 let allRawFacilities = [];
+let currentSelectedFloor = null;
 
 
 window.onload = function() {
@@ -46,6 +58,10 @@ window.onload = function() {
         zoom: MAP_CONFIG.zoom,
         minZoom: MAP_CONFIG.minZoom,
         maxZoom: MAP_CONFIG.maxZoom,
+
+        rotate: true,
+        bearing: 79,
+        rotateControl: false,
 
         zoomControl: false,
         zoomAnimation: true,
@@ -64,7 +80,7 @@ window.onload = function() {
         position: 'bottomright'
     }).addTo(map);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
         attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         maxZoom: MAP_CONFIG.maxZoom,
         maxNativeZoom: 19,
@@ -80,7 +96,11 @@ window.onload = function() {
         gradient: { 0.4: 'blue', 0.7: 'orange', 1.0: 'red' }
     }).addTo(map);
 
-    map.on('zoomend', updateLabelVisibility);
+    map.on('zoomend', () => {
+        updateLabelVisibility();
+        updateBuildingAliasLabelSizes();
+        updateBuildingAmenityVisibility();
+    });
 
     updateLabelVisibility();
     loadPOIs();
@@ -111,6 +131,17 @@ function loadPOIs() {
 }
 
 function placePOIs(items) {
+    if (buildingAliasLayerGroup) {
+        map.removeLayer(buildingAliasLayerGroup);
+    }
+    if (buildingAmenityLayerGroup) {
+        map.removeLayer(buildingAmenityLayerGroup);
+    }
+    buildingAliasLayerGroup = L.layerGroup().addTo(map);
+    buildingAmenityLayerGroup = L.layerGroup().addTo(map);
+    buildingAliasMarkers = [];
+    buildingAmenityMarkers = [];
+
     items.forEach(item => {
         if (!item.coords || !Array.isArray(item.coords)) {
             console.warn('Skipping POI without coords:', item);
@@ -148,7 +179,6 @@ function placePOIs(items) {
             return;
         }
         
-        // Handle Buildings
         if (item.coords.length > 2 && Array.isArray(item.coords[0])) {
             const labelText = item.name || item.layer_type.replace(/_/g, ' ');
 
@@ -161,12 +191,35 @@ function placePOIs(items) {
 
             polygon.bindTooltip(labelText, { direction: 'top', opacity: 0.85 });
 
+            if (item.alias) {
+                const aliasText = item.alias;
+                const aliasMarker = L.marker(getPolygonVisualCenter(polygon, item.coords), {
+                    icon: createBuildingAliasIcon(aliasText, 14),
+                    interactive: false,
+                    keyboard: false,
+                    zIndexOffset: 2000
+                }).addTo(buildingAliasLayerGroup);
+                buildingAliasMarkers.push({ marker: aliasMarker, alias: aliasText, coords: item.coords });
+            }
+
+            const amenityTypes = Array.isArray(item.amenity_types) ? item.amenity_types : [];
+            if (amenityTypes.length > 0) {
+                const amenityAnchor = getBuildingAmenityAnchor(polygon.getBounds());
+                const amenityMarker = L.marker(amenityAnchor, {
+                    icon: createBuildingAmenityIcon(amenityTypes),
+                    interactive: false,
+                    keyboard: false,
+                    zIndexOffset: 1900
+                }).addTo(buildingAmenityLayerGroup);
+                buildingAmenityMarkers.push(amenityMarker);
+            }
+
             const handleBuildingClick = (event) => {
                 if (event.originalEvent) L.DomEvent.stopPropagation(event);
                 openBuildingPanel(item);
                 map.flyToBounds(polygon.getBounds(), {
-                    paddingTopLeft: [380, 80],
-                    paddingBottomRight: [60, 60],
+                    paddingTopLeft: [380, 44],
+                    paddingBottomRight: [60, 110],
                     duration: 0.5,
                     maxZoom: 20
                 });
@@ -179,6 +232,142 @@ function placePOIs(items) {
             return;
         }
     });
+
+    updateBuildingAliasLabelSizes();
+    updateBuildingAmenityVisibility();
+}
+
+function createBuildingAliasIcon(aliasText, fontSizePx) {
+    const safeFontSize = Math.max(10, Math.round(fontSizePx));
+    const estimatedWidth = Math.max(18, Math.round(safeFontSize * (0.7 + aliasText.length * 0.42)));
+    const estimatedHeight = Math.max(14, Math.round(safeFontSize * 1.2));
+    const html = `
+        <div class="building-alias-label" style="font-size:${safeFontSize}px;line-height:1;">${aliasText}</div>
+    `;
+
+    return L.divIcon({
+        html,
+        className: 'building-alias-div-icon',
+        iconSize: [estimatedWidth, estimatedHeight],
+        iconAnchor: [estimatedWidth / 2, estimatedHeight / 2]
+    });
+}
+
+function updateBuildingAliasLabelSizes() {
+    if (!map || buildingAliasMarkers.length === 0) return;
+
+    const heights = [];
+    for (let i = 0; i < buildingAliasMarkers.length; i++) {
+        const metrics = getPolygonDisplayMetrics(buildingAliasMarkers[i].coords);
+        heights.push(metrics.height);
+    }
+
+    heights.sort((a, b) => a - b);
+    const medianHeight = heights[Math.floor(heights.length / 2)] || 26;
+    const unifiedFontPx = Math.min(28, Math.max(11, medianHeight * 0.56));
+
+    buildingAliasMarkers.forEach(({ marker, alias }) => {
+        marker.setIcon(createBuildingAliasIcon(alias, unifiedFontPx));
+    });
+}
+
+function createBuildingAmenityIcon(types) {
+    const unique = [];
+    for (let i = 0; i < types.length; i++) {
+        const type = types[i];
+        if (!GLOBAL_AMENITY_TYPES.includes(type)) continue;
+        if (!unique.includes(type)) unique.push(type);
+    }
+
+    const selected = unique.slice(0, GLOBAL_AMENITY_MAX_ICONS);
+    const html = `
+        <div class="building-amenity-strip">${selected.map(type => `<span class="building-amenity-chip">${POI_ICONS[type] || '•'}</span>`).join('')}</div>
+    `;
+    const iconWidth = Math.max(24, selected.length * 18 + 8);
+
+    return L.divIcon({
+        html,
+        className: 'building-amenity-div-icon',
+        iconSize: [iconWidth, 18],
+        iconAnchor: [0, 18]
+    });
+}
+
+function updateBuildingAmenityVisibility() {
+    if (!map || !buildingAmenityLayerGroup) return;
+    const zoom = map.getZoom();
+    const shouldShow = zoom >= GLOBAL_AMENITY_MIN_ZOOM && zoom <= GLOBAL_AMENITY_MAX_ZOOM;
+    if (shouldShow) {
+        if (!map.hasLayer(buildingAmenityLayerGroup)) map.addLayer(buildingAmenityLayerGroup);
+    } else if (map.hasLayer(buildingAmenityLayerGroup)) {
+        map.removeLayer(buildingAmenityLayerGroup);
+    }
+}
+
+function getPolygonDisplayMetrics(coords) {
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+
+    for (let i = 0; i < coords.length; i++) {
+        const pair = coords[i];
+        if (!Array.isArray(pair) || pair.length < 2) continue;
+        const point = map.latLngToContainerPoint([pair[0], pair[1]]);
+        if (point.x < minX) minX = point.x;
+        if (point.x > maxX) maxX = point.x;
+        if (point.y < minY) minY = point.y;
+        if (point.y > maxY) maxY = point.y;
+    }
+
+    if (!Number.isFinite(minX) || !Number.isFinite(minY) || !Number.isFinite(maxX) || !Number.isFinite(maxY)) {
+        return { width: 48, height: 28 };
+    }
+
+    return {
+        width: Math.max(1, maxX - minX),
+        height: Math.max(1, maxY - minY)
+    };
+}
+
+function getPolygonVisualCenter(polygon, coords) {
+    const boundsCenter = polygon.getBounds().getCenter();
+    if (isPointInsidePolygon(boundsCenter, coords)) {
+        return [boundsCenter.lat, boundsCenter.lng];
+    }
+    return getPolygonCentroid(coords);
+}
+
+function isPointInsidePolygon(latlng, coords) {
+    const x = latlng.lng;
+    const y = latlng.lat;
+    let inside = false;
+
+    for (let i = 0, j = coords.length - 1; i < coords.length; j = i++) {
+        const xi = coords[i][1];
+        const yi = coords[i][0];
+        const xj = coords[j][1];
+        const yj = coords[j][0];
+
+        const intersect = ((yi > y) !== (yj > y))
+            && (x < ((xj - xi) * (y - yi)) / ((yj - yi) || 1e-12) + xi);
+
+        if (intersect) inside = !inside;
+    }
+
+    return inside;
+}
+
+function getBuildingAmenityAnchor(bounds) {
+    const sw = bounds.getSouthWest();
+    const ne = bounds.getNorthEast();
+    const latSpan = Math.abs(ne.lat - sw.lat);
+    const lngSpan = Math.abs(ne.lng - sw.lng);
+
+    return [
+        sw.lat + latSpan * 0.12,
+        sw.lng + lngSpan * 0.10
+    ];
 }
 
 function getPolygonCentroid(coords) {
@@ -390,7 +579,31 @@ function updateLabelVisibility() {
     });
 }
 
-function showItemsForBuilding(buildingName) {
+function getFacilityBuildingKeys(facility) {
+    const keys = [];
+    if (facility && facility.building) {
+        keys.push(facility.building);
+    }
+
+    const shared = facility && facility.details && facility.details.shared_buildings;
+    if (Array.isArray(shared)) {
+        shared.forEach(name => {
+            if (name && !keys.includes(name)) keys.push(name);
+        });
+    }
+
+    return keys;
+}
+
+function belongsToBuilding(facility, buildingName) {
+    return getFacilityBuildingKeys(facility).includes(buildingName);
+}
+
+function isCrossFloorVisibleFacility(facility) {
+    return CROSS_FLOOR_VISIBLE_TYPES.includes(facility.layer_type);
+}
+
+function showItemsForBuilding(buildingName, floorLabel = null) {
     if (itemLayerGroup) {
         map.removeLayer(itemLayerGroup);
         itemLayerGroup = null;
@@ -404,7 +617,12 @@ function showItemsForBuilding(buildingName) {
     const chipBtns = document.querySelectorAll('.chip-btn');
     chipBtns.forEach(b => b.classList.remove('active'));
 
-    const matchingItems = allPointFacilities.filter(f => f.building === buildingName);
+    const matchingItems = allPointFacilities.filter(f => {
+        if (!belongsToBuilding(f, buildingName)) return false;
+        if (!floorLabel) return true;
+        if (isCrossFloorVisibleFacility(f)) return true;
+        return f.floor === floorLabel;
+    });
     if (matchingItems.length === 0) return;
 
     itemLayerGroup = L.layerGroup().addTo(map);
@@ -449,8 +667,6 @@ function openBuildingPanel(item) {
     currentBuildingFloors = item.floors || [];
     currentOpenBuildingName = item.building || item.name;
 
-    showItemsForBuilding(item.building || item.name);
-
     const tabsContainer = document.getElementById('building-floor-tabs');
     tabsContainer.innerHTML = '';
 
@@ -458,6 +674,8 @@ function openBuildingPanel(item) {
     classroomsEl.className = 'gm-pills-list';
 
     if (currentBuildingFloors.length === 0) {
+        currentSelectedFloor = null;
+        showItemsForBuilding(item.building || item.name, null);
         classroomsEl.innerHTML = '<li style="color:#999; background:none; padding:0;">None listed</li>';
         document.getElementById('building-panel-items').innerHTML = '';
     } else {
@@ -609,8 +827,24 @@ function renderFloorContent(floor) {
         if (imageWrapEl) imageWrapEl.style.display = 'none';
     }
 
-    currentFloorItems = floor.items || [];
+    const floorItems = floor.items || [];
+    const crossFloorItems = currentBuildingFloors
+        .flatMap(f => f.items || [])
+        .filter(item => CROSS_FLOOR_VISIBLE_TYPES.includes(item.layer_type));
+
+    const seenFloorItems = new Set();
+    currentFloorItems = [...floorItems, ...crossFloorItems].filter(item => {
+        const key = `${item.layer_type}|${item.name}`;
+        if (seenFloorItems.has(key)) return false;
+        seenFloorItems.add(key);
+        return true;
+    });
     activeItemFilter = null;
+    currentSelectedFloor = floor.level || floor.label || null;
+
+    if (currentOpenBuildingName) {
+        showItemsForBuilding(currentOpenBuildingName, currentSelectedFloor);
+    }
 
     const types = [];
     currentFloorItems.forEach(item => {
@@ -668,6 +902,7 @@ function closeBuildingPanel() {
         itemLayerGroup = null;
     }
     currentOpenBuildingName = null;
+    currentSelectedFloor = null;
 }
 
 document.getElementById('building-panel-close').addEventListener('click', () => {
@@ -677,23 +912,38 @@ document.getElementById('building-panel-close').addEventListener('click', () => 
 function transformFacilities(facilities) {
     const buildingPolygons = facilities.filter(f => f.layer_type === 'polygon');
     const pointFacilities = facilities.filter(f => f.layer_type !== 'polygon');
+    const buildingAmenitySet = {};
+
+    pointFacilities.forEach(f => {
+        if (!f.layer_type || f.layer_type === 'classroom') return;
+        const buildingKeys = getFacilityBuildingKeys(f);
+        buildingKeys.forEach(buildingKey => {
+            if (!buildingAmenitySet[buildingKey]) buildingAmenitySet[buildingKey] = [];
+            if (!buildingAmenitySet[buildingKey].includes(f.layer_type)) {
+                buildingAmenitySet[buildingKey].push(f.layer_type);
+            }
+        });
+    });
 
     // Group point facilities by building -> floor -> items
     const groupedByBuilding = {};
     const groupedClassroomsByBuilding = {};
     pointFacilities.forEach(f => {
-        const buildingKey = f.building;
-        if (!buildingKey) return;
-        if (!groupedByBuilding[buildingKey]) groupedByBuilding[buildingKey] = {};
-        const floorKey = f.floor || 'Unspecified';
-        if (f.layer_type === 'classroom') {
-            if (!groupedClassroomsByBuilding[buildingKey]) groupedClassroomsByBuilding[buildingKey] = {};
-            if (!groupedClassroomsByBuilding[buildingKey][floorKey]) groupedClassroomsByBuilding[buildingKey][floorKey] = [];
-            groupedClassroomsByBuilding[buildingKey][floorKey].push(f.name);
-        } else {
-            if (!groupedByBuilding[buildingKey][floorKey]) groupedByBuilding[buildingKey][floorKey] = [];
-            groupedByBuilding[buildingKey][floorKey].push({ name: f.name, layer_type: f.layer_type });
-        }
+        const buildingKeys = getFacilityBuildingKeys(f);
+        if (buildingKeys.length === 0) return;
+
+        buildingKeys.forEach(buildingKey => {
+            if (!groupedByBuilding[buildingKey]) groupedByBuilding[buildingKey] = {};
+            const floorKey = f.floor || 'Unspecified';
+            if (f.layer_type === 'classroom') {
+                if (!groupedClassroomsByBuilding[buildingKey]) groupedClassroomsByBuilding[buildingKey] = {};
+                if (!groupedClassroomsByBuilding[buildingKey][floorKey]) groupedClassroomsByBuilding[buildingKey][floorKey] = [];
+                groupedClassroomsByBuilding[buildingKey][floorKey].push(f.name);
+            } else {
+                if (!groupedByBuilding[buildingKey][floorKey]) groupedByBuilding[buildingKey][floorKey] = [];
+                groupedByBuilding[buildingKey][floorKey].push({ name: f.name, layer_type: f.layer_type });
+            }
+        });
     });
 
     // Building polygons -> match placePOIs' expected shape
@@ -743,9 +993,11 @@ function transformFacilities(facilities) {
         return {
             layer_type: 'building', 
             name: buildingName,
+            alias: poly.alias || null,
             building: buildingName,
             description: poly.description || '',
             coords: coords,
+            amenity_types: buildingAmenitySet[buildingName] || [],
             floors: floors
         };
     });

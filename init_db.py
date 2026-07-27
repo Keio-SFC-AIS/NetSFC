@@ -12,6 +12,7 @@ class Facility(TypedDict):
     id: int
     layer_type: str
     name: str
+    alias: str | None
     building: str | None
     floor: str | None
     coords: List[Any]
@@ -51,6 +52,7 @@ def load_facilities_json() -> list[Facility]:
             "id": id_value,
             "layer_type": type_value,
             "name": name_value,
+            "alias": item.get("alias"),
             "building": item.get("building"),
             "floor": item.get("floor"),
             "coords": coords if isinstance(coords, list) else [],
@@ -95,6 +97,7 @@ def init_db(db_name: str) -> None:
             id INTEGER PRIMARY KEY,
             layer_type TEXT NOT NULL,
             name TEXT NOT NULL,
+            alias TEXT,
             building TEXT,
             floor TEXT,
             coords TEXT NOT NULL,
@@ -105,6 +108,7 @@ def init_db(db_name: str) -> None:
 
     ensure_column(cursor, 'campus_pois', 'building', 'TEXT')
     ensure_column(cursor, 'campus_pois', 'floor', 'TEXT')
+    ensure_column(cursor, 'campus_pois', 'alias', 'TEXT')
     ensure_column(cursor, 'campus_pois', 'coords', 'TEXT DEFAULT "[]"')
     ensure_column(cursor, 'campus_pois', 'floor_images', 'TEXT DEFAULT "{}"')
     ensure_column(cursor, 'campus_pois', 'details', 'TEXT DEFAULT "{}"')
@@ -117,12 +121,13 @@ def init_db(db_name: str) -> None:
     for facility in facilities:
         cursor.execute("""
             INSERT OR REPLACE INTO campus_pois 
-            (id, layer_type, name, building, floor, coords, floor_images, details)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            (id, layer_type, name, alias, building, floor, coords, floor_images, details)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             facility["id"],
             facility["layer_type"],
             facility["name"],
+            facility.get("alias"),
             facility["building"],
             facility["floor"],
             json.dumps(facility["coords"], ensure_ascii=False),
