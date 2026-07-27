@@ -24,7 +24,8 @@ const POI_ICONS = {
 const LABEL_ZOOM_THRESHOLD = 21;
 const GLOBAL_AMENITY_TYPES = ['aed', 'accessible_washroom', 'washroom', 'elevator', 'water_fountain', 'printer', 'vending_machine'];
 const GLOBAL_AMENITY_MAX_ICONS = 5;
-const GLOBAL_AMENITY_MAX_ZOOM = 19;
+const GLOBAL_AMENITY_MIN_ZOOM = 15.5;
+const GLOBAL_AMENITY_MAX_ZOOM = 19.5;
 
 let map;
 let heatLayer;
@@ -292,7 +293,8 @@ function createBuildingAmenityIcon(types) {
 
 function updateBuildingAmenityVisibility() {
     if (!map || !buildingAmenityLayerGroup) return;
-    const shouldShow = map.getZoom() <= GLOBAL_AMENITY_MAX_ZOOM;
+    const zoom = map.getZoom();
+    const shouldShow = zoom >= GLOBAL_AMENITY_MIN_ZOOM && zoom <= GLOBAL_AMENITY_MAX_ZOOM;
     if (shouldShow) {
         if (!map.hasLayer(buildingAmenityLayerGroup)) map.addLayer(buildingAmenityLayerGroup);
     } else if (map.hasLayer(buildingAmenityLayerGroup)) {

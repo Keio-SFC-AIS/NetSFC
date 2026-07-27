@@ -4459,8 +4459,8 @@
     "building": "Alpha Building",
     "floor": "1F",
     "coords": [
-      35.388332,
-      139.427938
+      35.38835023331317,
+      139.42781567999805
     ]
   },
   {
@@ -4470,8 +4470,8 @@
     "building": "Media Center",
     "floor": "1F",
     "coords": [
-      35.388304,
-      139.427341
+      35.388144218710906,
+      139.42744299963877
     ]
   },
   {
@@ -4481,8 +4481,19 @@
     "building": "Iota Building",
     "floor": "1F",
     "coords": [
-      35.388332,
-      139.42653
+      35.38841444455365,
+      139.42657434891916
+    ]
+  },
+  {
+    "id": 152,
+    "name": "AED - Sigma Building B1F",
+    "layer_type": "aed",
+    "building": "Sigma Building",
+    "floor": "B1F",
+    "coords": [
+      35.387202,
+      139.42607
     ]
   }
 ]
