@@ -131,10 +131,17 @@ window.onload = function() {
     }).addTo(map);
 
     heatLayer = L.heatLayer(heatPoints, {
-        radius: 35,
+        radius: 40,
         blur: 25,
         maxZoom: MAP_CONFIG.maxZoom,
-        gradient: { 0.4: '#9aa0a6', 0.7: 'orange', 1.0: 'red' }
+        max: 1.0,
+        gradient: {
+            0.2: '#0000ff',
+            0.4: '#87ceeb',  
+            0.6: '#00ff00',  
+            0.8: 'orange',
+            1.0: 'red'    
+        }
     }).addTo(map);
 
     map.on('zoomend', () => {
@@ -146,8 +153,7 @@ window.onload = function() {
     updateLabelVisibility();
     loadPOIs();
     loadHeatmapData();
-    // initHeatmapSocket();
-    initHeatmapToggle();
+    // initHeatmapSocket();   
     initGeolocation();
     initSettingsModal();
     initCategoryChips();
@@ -176,6 +182,53 @@ function loadPOIs() {
         .catch(error => {
             console.error('Failed to load POIs', error);
         });
+}
+
+function loadHeatmapData() {
+    const url = `${window.ENV.API_HOST}/api/measurements/heatmap`; 
+    fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Heatmap request failed: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            heatPoints = data.map(point => [point.coords[0], point.coords[1], point.weight]);
+            heatLayer.setLatLngs(heatPoints);
+            heatLayer.redraw();
+        })
+        .catch(error => {
+            console.error('Failed to load heatmap data', error);
+        });
+}
+
+let heatmapSocket = null;
+
+function initHeatmapSocket() {
+    const wsUrl = `${apiHost}/ws/heatmap`; 
+
+    heatmapSocket = new WebSocket(wsUrl);
+
+    heatmapSocket.onmessage = (event) => {
+        const message = JSON.parse(event.data);
+
+        if (message.type === 'NEW_MEASUREMENT') {
+            const point = message.data;
+            const newPoint = [point.coords[0], point.coords[1], point.weight];
+            heatPoints.push(newPoint);
+            heatLayer.setLatLngs(heatPoints);
+        }
+    };
+
+    heatmapSocket.onerror = (error) => {
+        console.error('Heatmap WebSocket error:', error);
+    };
+
+    heatmapSocket.onclose = () => {
+        console.warn('Heatmap WebSocket closed. Reconnecting in 5s...');
+        setTimeout(initHeatmapSocket, 5000);
+    };
 }
 
 function normalizeLayerType(layerType) {
@@ -376,51 +429,6 @@ function placePOIs(items) {
 
     updateBuildingAliasLabelSizes();
     updateBuildingAmenityVisibility();
-}
-
-let heatmapSocket = null;
-
-function initHeatmapSocket() {
-    const wsUrl = `${apiHost}/ws/heatmap`; 
-
-    heatmapSocket = new WebSocket(wsUrl);
-
-    heatmapSocket.onmessage = (event) => {
-        const message = JSON.parse(event.data);
-
-        if (message.type === 'NEW_MEASUREMENT') {
-            const point = message.data;
-            const newPoint = [point.coords[0], point.coords[1], point.weight];
-            heatPoints.push(newPoint);
-            heatLayer.setLatLngs(heatPoints);
-        }
-    };
-
-    heatmapSocket.onerror = (error) => {
-        console.error('Heatmap WebSocket error:', error);
-    };
-
-    heatmapSocket.onclose = () => {
-        console.warn('Heatmap WebSocket closed. Reconnecting in 5s...');
-        setTimeout(initHeatmapSocket, 5000);
-    };
-}
-
-function toggleHeatmap(isVisible) {
-    if (isVisible) {
-        heatLayer.addTo(map);
-    } else {
-        map.removeLayer(heatLayer);
-    }
-}
-
-function initHeatmapToggle() {
-    const checkbox = document.getElementById('setting-heatmap');
-    if (!checkbox) return;
-
-    checkbox.addEventListener('change', () => {
-        toggleHeatmap(checkbox.checked);
-    });
 }
 
 function createBuildingAliasIcon(aliasText, fontSizePx) {
