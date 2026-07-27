@@ -47,6 +47,10 @@ window.onload = function() {
         minZoom: MAP_CONFIG.minZoom,
         maxZoom: MAP_CONFIG.maxZoom,
 
+        rotate: true,
+        bearing: 79,
+        rotateControl: false,
+
         zoomControl: false,
         zoomAnimation: true,
         fadeAnimation: true,
@@ -64,7 +68,7 @@ window.onload = function() {
         position: 'bottomright'
     }).addTo(map);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
         attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         maxZoom: MAP_CONFIG.maxZoom,
         maxNativeZoom: 19,
