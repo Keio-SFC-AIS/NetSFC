@@ -3947,17 +3947,6 @@
     ]
   },
   {
-    "id": 102,
-    "name": "Elevator - Omicron Building 2F (Back)",
-    "layer_type": "elevator",
-    "building": "Omicron Building",
-    "floor": "2F",
-    "coords": [
-      35.388611,
-      139.426528
-    ]
-  },
-  {
     "id": 103,
     "name": "Printer - Epsilon Building 1F (Back)",
     "layer_type": "printer",
@@ -4494,6 +4483,268 @@
     "coords": [
       35.387202,
       139.42607
+    ]
+  },
+  {
+    "id": 153,
+    "name": "Shared Elevator - Kappa/Epsilon Connection",
+    "layer_type": "elevator",
+    "building": "Kappa Building",
+    "floor": "1F",
+    "coords": [
+      35.387923580405236,
+      139.4260904536641
+    ],
+    "details": {
+      "shared_buildings": [
+        "Epsilon Building"
+      ],
+      "connector_polygon": [
+        [
+          35.38782828799004,
+          139.42609076745097
+        ],
+        [
+          35.3878677730052,
+          139.42609706810316
+        ],
+        [
+          35.38787854736477,
+          139.42605622037652
+        ],
+        [
+          35.387928034000474,
+          139.4260693388132
+        ],
+        [
+          35.38792339361668,
+          139.42610963710533
+        ],
+        [
+          35.38796557231888,
+          139.426121022954
+        ],
+        [
+          35.387961464515925,
+          139.4261521584121
+        ],
+        [
+          35.38781962709213,
+          139.42611436716527
+        ]
+      ]
+    }
+  },
+  {
+    "id": 154,
+    "name": "Shared Elevator - Iota/Omicron Connection",
+    "layer_type": "elevator",
+    "building": "Iota Building",
+    "floor": "1F",
+    "coords": [
+      35.388598186889126,
+      139.42627165713537
+    ],
+    "details": {
+      "shared_buildings": [
+        "Omicron Building"
+      ],
+      "connector_polygon": [
+        [
+          35.38850476405178,
+          139.42626003369855
+        ],
+        [
+          35.38855372827157,
+          139.4262718878626
+        ],
+        [
+          35.38856064863143,
+          139.42622791171883
+        ],
+        [
+          35.38858579356673,
+          139.42623606861608
+        ],
+        [
+          35.38858292967438,
+          139.42625455363307
+        ],
+        [
+          35.388601155320345,
+          139.42626150839197
+        ],
+        [
+          35.388597186876545,
+          139.42628331146886
+        ],
+        [
+          35.388636319566665,
+          139.42629441511932
+        ],
+        [
+          35.38863659650957,
+          139.42632573918476
+        ],
+        [
+          35.388502306187185,
+          139.42628833122916
+        ]
+      ]
+    }
+  },
+  {
+    "id": 155,
+    "name": "Fukuzawa Yukichi Statue",
+    "layer_type": "Statue",
+    "building": "Outside",
+    "floor": "N/A",
+    "coords": [
+      35.388433,
+      139.426981
+    ]
+  },
+  {
+    "id": 156,
+    "name": "Printer 1 - Mu Building 1F",
+    "layer_type": "Printer",
+    "building": "Mu Building",
+    "floor": "1F",
+    "coords": [
+      35.388006,
+      139.427135
+    ]
+  },
+  {
+    "id": 157,
+    "name": "Printer 2 - Mu Building 1F",
+    "layer_type": "Printer",
+    "building": "Mu Building",
+    "floor": "1F",
+    "coords": [
+      35.388035,
+      139.42713
+    ]
+  },
+  {
+    "id": 158,
+    "name": "Men's Washroom - Mu Building 1F",
+    "layer_type": "washroom",
+    "building": "Mu Building",
+    "floor": "1F",
+    "coords": [
+      35.388194,
+      139.427181
+    ]
+  },
+  {
+    "id": 159,
+    "name": "Women's Washroom - Mu Building 1F",
+    "layer_type": "washroom",
+    "building": "Mu Building",
+    "floor": "1F",
+    "coords": [
+      35.388129,
+      139.427177
+    ]
+  },
+  {
+    "id": 160,
+    "name": "Men's Washroom - Mu Building 2F",
+    "layer_type": "washroom",
+    "building": "Mu Building",
+    "floor": "2F",
+    "coords": [
+      35.388194,
+      139.427181
+    ]
+  },
+  {
+    "id": 161,
+    "name": "Women's Washroom - Mu Building 2F",
+    "layer_type": "washroom",
+    "building": "Mu Building",
+    "floor": "2F",
+    "coords": [
+      35.388129,
+      139.427177
+    ]
+  },
+  {
+    "id": 162,
+    "name": "Men's Washroom - Mu Building 3F",
+    "layer_type": "washroom",
+    "building": "Mu Building",
+    "floor": "3F",
+    "coords": [
+      35.388194,
+      139.427181
+    ]
+  },
+  {
+    "id": 163,
+    "name": "Women's Washroom - Mu Building 3F",
+    "layer_type": "washroom",
+    "building": "Mu Building",
+    "floor": "3F",
+    "coords": [
+      35.388129,
+      139.427177
+    ]
+  },
+  {
+    "id": 164,
+    "name": "Women's Washroom (Front) - Lambda Building 1F",
+    "layer_type": "washroom",
+    "building": "Lambda Building",
+    "floor": "1F",
+    "coords": [
+      35.389008,
+      139.426961
+    ]
+  },
+  {
+    "id": 165,
+    "name": "Men's Washroom (Front) - Lambda Building 1F",
+    "layer_type": "washroom",
+    "building": "Lambda Building",
+    "floor": "1F",
+    "coords": [
+      35.389007,
+      139.42698
+    ]
+  },
+  {
+    "id": 166,
+    "name": "Garbage Can (Front) - Lambda Building 1F",
+    "layer_type": "garbage",
+    "building": "Lambda Building",
+    "floor": "1F",
+    "coords": [
+      35.388985,
+      139.427098
+    ]
+  },
+  {
+    "id": 167,
+    "name": "Women's Washroom (Back) - Lambda Building 1F",
+    "layer_type": "washroom",
+    "building": "Lambda Building",
+    "floor": "1F",
+    "coords": [
+      35.389106,
+      139.426668
+    ]
+  },
+  {
+    "id": 168,
+    "name": "Men's Washroom (Back) - Lambda Building 1F",
+    "layer_type": "washroom",
+    "building": "Lambda Building",
+    "floor": "1F",
+    "coords": [
+      35.389069,
+      139.426712
     ]
   }
 ]
