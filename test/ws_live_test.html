@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WS Heatmap Test</title>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    input, button { font-size: 14px; margin-right: 8px; }
+    #log { margin-top: 16px; padding: 10px; border: 1px solid #ddd; height: 320px; overflow: auto; white-space: pre-wrap; background: #fafafa; }
+  </style>
+</head>
+<body>
+  <h3>WebSocket Heatmap Test</h3>
+  <label>API Host:</label>
+  <input id="apiHost" value="http://127.0.0.1:8080" size="28" />
+  <button id="connectBtn">Connect WS</button>
+  <button id="sendBtn">POST Test Measurement</button>
+  <div id="log"></div>
+
+  <script>
+    let ws = null;
+    const logEl = document.getElementById('log');
+    const hostInput = document.getElementById('apiHost');
+
+    function log(line) {
+      const now = new Date().toISOString();
+      logEl.textContent += `[${now}] ${line}\n`;
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function toWsUrl(httpUrl) {
+      return httpUrl.replace(/^http:/, 'ws:').replace(/^https:/, 'wss:') + '/ws/heatmap';
+    }
+
+    document.getElementById('connectBtn').addEventListener('click', () => {
+      const base = hostInput.value.replace(/\/$/, '');
+      const wsUrl = toWsUrl(base);
+      if (ws) ws.close();
+
+      ws = new WebSocket(wsUrl);
+      ws.onopen = () => log(`WS connected: ${wsUrl}`);
+      ws.onmessage = (evt) => log(`WS message: ${evt.data}`);
+      ws.onclose = () => log('WS closed');
+      ws.onerror = () => log('WS error');
+
+      const keepAlive = setInterval(() => {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+          ws.send('ping');
+        } else {
+          clearInterval(keepAlive);
+        }
+      }, 15000);
+    });
+
+    document.getElementById('sendBtn').addEventListener('click', async () => {
+      const base = hostInput.value.replace(/\/$/, '');
+      const payload = {
+        coords: [35.3883, 139.4283],
+        signal_strength: 5,
+        ping_ms: 12.5,
+        bandwidth: 85.0
+      };
+
+      try {
+        const res = await fetch(`${base}/api/measurements`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+        log(`POST /api/measurements ${res.status}: ${JSON.stringify(json)}`);
+      } catch (err) {
+        log(`POST error: ${String(err)}`);
+      }
+    });
+  </script>
+</body>
+</html>
