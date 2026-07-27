@@ -24,6 +24,8 @@ const LABEL_ZOOM_THRESHOLD = 21;
 let map;
 let heatLayer;
 let heatPoints = [];
+let buildingAliasLayerGroup = null;
+let buildingAliasMarkers = [];
 
 let userLocationMarker = null;
 let userAccuracyCircle = null;
@@ -84,7 +86,10 @@ window.onload = function() {
         gradient: { 0.4: 'blue', 0.7: 'orange', 1.0: 'red' }
     }).addTo(map);
 
-    map.on('zoomend', updateLabelVisibility);
+    map.on('zoomend', () => {
+        updateLabelVisibility();
+        updateBuildingAliasLabelSizes();
+    });
 
     updateLabelVisibility();
     loadPOIs();
@@ -115,6 +120,12 @@ function loadPOIs() {
 }
 
 function placePOIs(items) {
+    if (buildingAliasLayerGroup) {
+        map.removeLayer(buildingAliasLayerGroup);
+    }
+    buildingAliasLayerGroup = L.layerGroup().addTo(map);
+    buildingAliasMarkers = [];
+
     items.forEach(item => {
         if (!item.coords || !Array.isArray(item.coords)) {
             console.warn('Skipping POI without coords:', item);
@@ -152,7 +163,6 @@ function placePOIs(items) {
             return;
         }
         
-        // Handle Buildings
         if (item.coords.length > 2 && Array.isArray(item.coords[0])) {
             const labelText = item.name || item.layer_type.replace(/_/g, ' ');
 
@@ -164,6 +174,17 @@ function placePOIs(items) {
             }).addTo(map);
 
             polygon.bindTooltip(labelText, { direction: 'top', opacity: 0.85 });
+
+            if (item.alias) {
+                const aliasText = item.alias;
+                const aliasMarker = L.marker(getPolygonCentroid(item.coords), {
+                    icon: createBuildingAliasIcon(aliasText, 14),
+                    interactive: false,
+                    keyboard: false,
+                    zIndexOffset: 2000
+                }).addTo(buildingAliasLayerGroup);
+                buildingAliasMarkers.push({ marker: aliasMarker, alias: aliasText, coords: item.coords });
+            }
 
             const handleBuildingClick = (event) => {
                 if (event.originalEvent) L.DomEvent.stopPropagation(event);
@@ -183,6 +204,68 @@ function placePOIs(items) {
             return;
         }
     });
+
+    updateBuildingAliasLabelSizes();
+}
+
+function createBuildingAliasIcon(aliasText, fontSizePx) {
+    const safeFontSize = Math.max(10, Math.round(fontSizePx));
+    const estimatedWidth = Math.max(18, Math.round(safeFontSize * (0.7 + aliasText.length * 0.42)));
+    const estimatedHeight = Math.max(14, Math.round(safeFontSize * 1.2));
+    const html = `
+        <div class="building-alias-label" style="font-size:${safeFontSize}px;line-height:1;">${aliasText}</div>
+    `;
+
+    return L.divIcon({
+        html,
+        className: 'building-alias-div-icon',
+        iconSize: [estimatedWidth, estimatedHeight],
+        iconAnchor: [estimatedWidth / 2, estimatedHeight / 2]
+    });
+}
+
+function updateBuildingAliasLabelSizes() {
+    if (!map || buildingAliasMarkers.length === 0) return;
+
+    const heights = [];
+    for (let i = 0; i < buildingAliasMarkers.length; i++) {
+        const metrics = getPolygonDisplayMetrics(buildingAliasMarkers[i].coords);
+        heights.push(metrics.height);
+    }
+
+    heights.sort((a, b) => a - b);
+    const medianHeight = heights[Math.floor(heights.length / 2)] || 26;
+    const unifiedFontPx = Math.min(28, Math.max(11, medianHeight * 0.56));
+
+    buildingAliasMarkers.forEach(({ marker, alias }) => {
+        marker.setIcon(createBuildingAliasIcon(alias, unifiedFontPx));
+    });
+}
+
+function getPolygonDisplayMetrics(coords) {
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+
+    for (let i = 0; i < coords.length; i++) {
+        const pair = coords[i];
+        if (!Array.isArray(pair) || pair.length < 2) continue;
+        const point = map.latLngToContainerPoint([pair[0], pair[1]]);
+        if (point.x < minX) minX = point.x;
+        if (point.x > maxX) maxX = point.x;
+        if (point.y < minY) minY = point.y;
+        if (point.y > maxY) maxY = point.y;
+    }
+
+    if (!Number.isFinite(minX) || !Number.isFinite(minY) || !Number.isFinite(maxX) || !Number.isFinite(maxY)) {
+        return { width: 48, height: 28 };
+    }
+
+    return {
+        width: Math.max(1, maxX - minX),
+        height: Math.max(1, maxY - minY)
+    };
 }
 
 function getPolygonCentroid(coords) {
@@ -747,6 +830,7 @@ function transformFacilities(facilities) {
         return {
             layer_type: 'building', 
             name: buildingName,
+            alias: poly.alias || null,
             building: buildingName,
             description: poly.description || '',
             coords: coords,
