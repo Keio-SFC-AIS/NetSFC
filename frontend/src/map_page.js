@@ -18,6 +18,7 @@ const POI_ICONS = {
     accessible_washroom: '♿',
     vending_machine: '🥤',
     aed: '❤️',
+    statue: '⭐',
     building: '🏢'
 };
 
@@ -27,6 +28,43 @@ const GLOBAL_AMENITY_MAX_ICONS = 5;
 const GLOBAL_AMENITY_MIN_ZOOM = 15.5;
 const GLOBAL_AMENITY_MAX_ZOOM = 19.5;
 const CROSS_FLOOR_VISIBLE_TYPES = ['elevator'];
+const ALWAYS_VISIBLE_TYPES = ['statue'];
+const REGION_THEME_STYLES = {
+    teaching: { color: '#3f6f8c', fillColor: '#8fb2c7' },
+    library: { color: '#456b4f', fillColor: '#96b79a' },
+    conference: { color: '#7d5d3f', fillColor: '#c5a98a' },
+    administration: { color: '#7b4f5f', fillColor: '#c39aaa' },
+    graduate: { color: '#585b88', fillColor: '#9ea3d3' },
+    lifestyle: { color: '#8a6840', fillColor: '#d4b288' },
+    research: { color: '#5a6e57', fillColor: '#9eb197' },
+    default: { color: '#2f6f67', fillColor: '#7fb3a8' },
+};
+const BUILDING_REGION_THEME = {
+    'kappa building': 'teaching',
+    'epsilon building': 'teaching',
+    'iota building': 'teaching',
+    'omicron building': 'teaching',
+    'lambda building': 'teaching',
+    'media center': 'library',
+    'theta building': 'conference',
+    'alpha building': 'administration',
+    'omega building': 'graduate',
+    'tau building': 'graduate',
+    'sigma building': 'lifestyle',
+    'delta building': 'research',
+};
+const BUILDING_REGION_STYLE = {
+    weight: 1.6,
+    fillOpacity: 0.24,
+};
+const SHARED_REGION_STYLE = {
+    weight: 1.5,
+    fillOpacity: 0.20,
+};
+const REGION_HOVER_FILL_OPACITY = 0.40;
+const DETAIL_PANEL_BASE_LEFT = 388;
+const DETAIL_PANEL_WIDTH = 380;
+const DETAIL_PANEL_GAP = 16;
 
 let map;
 let heatLayer;
@@ -36,6 +74,7 @@ let buildingAliasMarkers = [];
 let buildingAmenityLayerGroup = null;
 let buildingAmenityMarkers = [];
 let sharedConnectorLayerGroup = null;
+let alwaysVisibleLayerGroup = null;
 
 let userLocationMarker = null;
 let userAccuracyCircle = null;
@@ -51,6 +90,7 @@ let currentFloorItems = [];
 let activeItemFilter = null;
 let allRawFacilities = [];
 let currentSelectedFloor = null;
+let detailPanelOrder = [];
 
 
 window.onload = function() {
@@ -109,6 +149,8 @@ window.onload = function() {
     initSettingsModal();
     initCategoryChips();
     initClassroomPanel();
+    initItemPanel();
+    window.addEventListener('resize', updateDetailPanelPositions);
 };
 
 function loadPOIs() {
@@ -124,12 +166,91 @@ function loadPOIs() {
             allRawFacilities = facilities;
             const { buildingItems, pointItems, sharedConnectorAreas } = transformFacilities(facilities);
             allPointFacilities = pointItems;
+            placeAlwaysVisibleItems(pointItems);
             placeSharedConnectorAreas(sharedConnectorAreas);
             placePOIs(buildingItems);
         })
         .catch(error => {
             console.error('Failed to load POIs', error);
         });
+}
+
+function normalizeLayerType(layerType) {
+    if (typeof layerType !== 'string') return '';
+    return layerType.trim().toLowerCase();
+}
+
+function isPointFacility(facility) {
+    return Array.isArray(facility.coords)
+        && facility.coords.length === 2
+        && typeof facility.coords[0] === 'number'
+        && typeof facility.coords[1] === 'number';
+}
+
+function normalizeBuildingName(name) {
+    if (typeof name !== 'string') return '';
+    const normalized = name.trim().toLowerCase().replace(/\s+/g, ' ');
+    if (normalized === 'mu building') return 'media center';
+    if (normalized === 'media center') return 'media center';
+    return normalized;
+}
+
+function isAlwaysVisibleFacility(facility) {
+    return ALWAYS_VISIBLE_TYPES.includes(normalizeLayerType(facility.layer_type));
+}
+
+function getRegionThemeKey(buildingName) {
+    const normalizedBuildingName = normalizeBuildingName(buildingName);
+    return BUILDING_REGION_THEME[normalizedBuildingName] || 'default';
+}
+
+function getRegionStyle(buildingName, variant = 'building') {
+    const theme = REGION_THEME_STYLES[getRegionThemeKey(buildingName)] || REGION_THEME_STYLES.default;
+    const baseStyle = variant === 'shared' ? SHARED_REGION_STYLE : BUILDING_REGION_STYLE;
+    return {
+        ...baseStyle,
+        color: theme.color,
+        fillColor: theme.fillColor,
+    };
+}
+
+function placeAlwaysVisibleItems(items) {
+    if (alwaysVisibleLayerGroup) {
+        map.removeLayer(alwaysVisibleLayerGroup);
+    }
+    alwaysVisibleLayerGroup = L.layerGroup().addTo(map);
+
+    (items || []).forEach(item => {
+        if (!isAlwaysVisibleFacility(item) || !isPointFacility(item)) return;
+
+        const icon = POI_ICONS[normalizeLayerType(item.layer_type)] || '⭐';
+        const labelText = item.name || 'landmark';
+        const html = `
+            <div class="poi-label always-visible-item">
+                <span class="poi-icon">${icon}</span>
+                <span class="poi-title always-visible-title">${labelText}</span>
+            </div>
+        `;
+
+        const markerIcon = L.divIcon({
+            html,
+            className: 'poi-div-icon',
+            iconSize: [200, 24],
+            iconAnchor: [10, 12],
+            popupAnchor: [0, -12],
+        });
+
+        L.marker([item.coords[0], item.coords[1]], { icon: markerIcon, interactive: true })
+            .addTo(alwaysVisibleLayerGroup)
+            .on('click', () => openItemPanel(item))
+            .bindTooltip(labelText, {
+                direction: 'top',
+                offset: [0, -12],
+                permanent: false,
+                opacity: 0.85,
+                className: 'poi-tooltip'
+            });
+    });
 }
 
 function placeSharedConnectorAreas(areas) {
@@ -142,9 +263,7 @@ function placeSharedConnectorAreas(areas) {
         if (!Array.isArray(area.coords) || area.coords.length < 3) return;
 
         L.polygon(area.coords, {
-            color: '#1a73e8',
-            weight: 1.5,
-            fillOpacity: 0.20,
+            ...getRegionStyle(area.buildingName || area.name, 'shared'),
             interactive: false
         }).addTo(sharedConnectorLayerGroup);
     });
@@ -201,11 +320,10 @@ function placePOIs(items) {
         
         if (item.coords.length > 2 && Array.isArray(item.coords[0])) {
             const labelText = item.name || item.layer_type.replace(/_/g, ' ');
+            const polygonStyle = getRegionStyle(item.building || item.name, 'building');
 
             const polygon = L.polygon(item.coords, {
-                color: '#1a73e8',
-                weight: 1.5,
-                fillOpacity: 0.20,
+                ...polygonStyle,
                 interactive: true
             }).addTo(map);
 
@@ -246,8 +364,8 @@ function placePOIs(items) {
             };
 
             polygon.on('click', handleBuildingClick);
-            polygon.on('mouseover', () => polygon.setStyle({ fillOpacity: 0.40 }));
-            polygon.on('mouseout', () => polygon.setStyle({ fillOpacity: 0.20 }));
+            polygon.on('mouseover', () => polygon.setStyle({ fillOpacity: REGION_HOVER_FILL_OPACITY }));
+            polygon.on('mouseout', () => polygon.setStyle({ fillOpacity: polygonStyle.fillOpacity }));
 
             return;
         }
@@ -521,21 +639,17 @@ function filterPOIsByCategory(category) {
 
     categoryFilterLayerGroup = L.layerGroup().addTo(map);
 
-    const isPointFacility = (f) => Array.isArray(f.coords)
-        && f.coords.length === 2
-        && typeof f.coords[0] === 'number'
-        && typeof f.coords[1] === 'number';
-
     let matchingFacilities;
     if (category === 'all') {
         matchingFacilities = allPointFacilities.filter(isPointFacility);
     } else {
-        matchingFacilities = allPointFacilities.filter(f => f.layer_type === category && isPointFacility(f));
+        matchingFacilities = allPointFacilities.filter(f => normalizeLayerType(f.layer_type) === category && isPointFacility(f));
     }
 
     matchingFacilities.forEach(item => {
-        const icon = POI_ICONS[item.layer_type] || '📍';
-        const labelText = item.layer_type.replace(/_/g, ' ');
+        const itemType = normalizeLayerType(item.layer_type);
+        const icon = POI_ICONS[itemType] || '📍';
+        const labelText = itemType.replace(/_/g, ' ');
         const html = `
             <div class="poi-label">
                 <span class="poi-icon">${icon}</span>
@@ -552,6 +666,7 @@ function filterPOIsByCategory(category) {
 
         L.marker([item.coords[0], item.coords[1]], { icon: poiIcon, interactive: true })
             .addTo(categoryFilterLayerGroup)
+            .on('click', () => openItemPanel(item))
             .bindTooltip(labelText, {
                 direction: 'top',
                 offset: [0, -12],
@@ -619,11 +734,12 @@ function getFacilityBuildingKeys(facility) {
 }
 
 function belongsToBuilding(facility, buildingName) {
-    return getFacilityBuildingKeys(facility).includes(buildingName);
+    const normalizedBuildingName = normalizeBuildingName(buildingName);
+    return getFacilityBuildingKeys(facility).some(name => normalizeBuildingName(name) === normalizedBuildingName);
 }
 
 function isCrossFloorVisibleFacility(facility) {
-    return CROSS_FLOOR_VISIBLE_TYPES.includes(facility.layer_type);
+    return CROSS_FLOOR_VISIBLE_TYPES.includes(normalizeLayerType(facility.layer_type));
 }
 
 function showItemsForBuilding(buildingName, floorLabel = null) {
@@ -651,8 +767,9 @@ function showItemsForBuilding(buildingName, floorLabel = null) {
     itemLayerGroup = L.layerGroup().addTo(map);
 
     matchingItems.forEach(item => {
-        const icon = POI_ICONS[item.layer_type] || '📍';
-        const labelText = item.layer_type.replace(/_/g, ' ');
+        const itemType = normalizeLayerType(item.layer_type);
+        const icon = POI_ICONS[itemType] || '📍';
+        const labelText = itemType.replace(/_/g, ' ');
         const html = `
             <div class="poi-label">
                 <span class="poi-icon">${icon}</span>
@@ -669,6 +786,7 @@ function showItemsForBuilding(buildingName, floorLabel = null) {
 
         L.marker([item.coords[0], item.coords[1]], { icon: poiIcon, interactive: true })
             .addTo(itemLayerGroup)
+            .on('click', () => openItemPanel(item))
             .bindTooltip(labelText, {
                 direction: 'top',
                 offset: [0, -12],
@@ -731,6 +849,138 @@ function initClassroomPanel() {
             }
         });
     }
+}
+
+function initItemPanel() {
+    const closeBtn = document.getElementById('item-panel-close');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeItemPanel);
+    }
+
+    const itemsEl = document.getElementById('building-panel-items');
+    if (itemsEl) {
+        itemsEl.addEventListener('click', (e) => {
+            const li = e.target.closest('li[data-item-name]');
+            if (!li) return;
+            const itemName = li.dataset.itemName;
+            const itemType = li.dataset.itemType;
+            const target = currentFloorItems.find(item => item.name === itemName && normalizeLayerType(item.layer_type) === normalizeLayerType(itemType));
+            if (target) openItemPanel(target);
+        });
+    }
+}
+
+function registerDetailPanelOpen(panelId) {
+    detailPanelOrder = detailPanelOrder.filter(id => id !== panelId);
+    detailPanelOrder.push(panelId);
+    updateDetailPanelPositions();
+}
+
+function unregisterDetailPanel(panelId) {
+    detailPanelOrder = detailPanelOrder.filter(id => id !== panelId);
+    updateDetailPanelPositions();
+}
+
+function updateDetailPanelPositions() {
+    const panels = ['classroom-panel', 'item-panel'];
+
+    if (window.innerWidth <= 600) {
+        panels.forEach(panelId => {
+            const panel = document.getElementById(panelId);
+            if (panel) panel.style.left = '';
+        });
+        return;
+    }
+
+    detailPanelOrder.forEach((panelId, index) => {
+        const panel = document.getElementById(panelId);
+        if (!panel || !panel.classList.contains('open')) return;
+        panel.style.left = `${DETAIL_PANEL_BASE_LEFT + index * (DETAIL_PANEL_WIDTH + DETAIL_PANEL_GAP)}px`;
+    });
+
+    panels.forEach(panelId => {
+        if (detailPanelOrder.includes(panelId)) return;
+        const panel = document.getElementById(panelId);
+        if (panel && !panel.classList.contains('open')) {
+            panel.style.left = `${DETAIL_PANEL_BASE_LEFT}px`;
+        }
+    });
+}
+
+function openItemPanel(item) {
+    const details = item.details || {};
+    const baseUrl = window.ENV.API_HOST.replace(/\/$/, '');
+    const images = Array.isArray(details.images) ? details.images : [];
+
+    document.getElementById('item-title').textContent = item.name || 'Unnamed item';
+    document.getElementById('item-building-tag').textContent = item.building || 'CAMPUS';
+    document.getElementById('item-description').textContent = details.description || 'No description available for this item yet.';
+    document.getElementById('item-category').textContent = normalizeLayerType(item.layer_type).replace(/_/g, ' ') || 'N/A';
+    document.getElementById('item-floor').textContent = item.floor || 'N/A';
+    document.getElementById('item-building').textContent = item.building || 'N/A';
+    document.getElementById('item-notes').textContent = details.notes || 'N/A';
+
+    const heroImg = document.getElementById('item-hero-img');
+    const heroPlaceholder = document.getElementById('item-hero-placeholder');
+    const heroCaption = document.getElementById('item-hero-caption');
+    const thumbnailsRow = document.getElementById('item-thumbnails-row');
+    thumbnailsRow.innerHTML = '';
+
+    const getFullUrl = (url) => url.startsWith('http') ? url : `${baseUrl}/${url.replace(/^\//, '')}`;
+
+    if (images.length > 0) {
+        heroImg.style.display = 'block';
+        heroPlaceholder.style.display = 'none';
+        heroImg.src = getFullUrl(images[0].url);
+        heroCaption.textContent = images[0].label || 'Preview';
+
+        images.forEach((imgData, index) => {
+            const thumbUrl = getFullUrl(imgData.url);
+            const thumb = document.createElement('div');
+            thumb.className = `cr-thumb-item ${index === 0 ? 'active' : ''}`;
+            thumb.innerHTML = `<img src="${thumbUrl}" alt="${imgData.label || 'Preview'}"><span>${imgData.label || ''}</span>`;
+            thumb.addEventListener('click', () => {
+                document.querySelectorAll('#item-thumbnails-row .cr-thumb-item').forEach(t => t.classList.remove('active'));
+                thumb.classList.add('active');
+                heroImg.classList.add('loading');
+                heroImg.src = thumbUrl;
+                heroCaption.textContent = imgData.label || 'Preview';
+                setTimeout(() => {
+                    heroImg.classList.remove('loading');
+                }, 50);
+            });
+            thumbnailsRow.appendChild(thumb);
+        });
+    } else {
+        heroImg.style.display = 'none';
+        heroImg.src = '';
+        heroPlaceholder.style.display = 'flex';
+        heroCaption.textContent = 'Preview';
+    }
+
+    const features = document.getElementById('item-features');
+    const featureList = Array.isArray(details.features) ? details.features : [];
+    features.innerHTML = featureList.length > 0
+        ? featureList.map(feature => `<li>${feature}</li>`).join('')
+        : '<li style="color:#999;">No extra details yet</li>';
+
+    const linksEl = document.getElementById('item-links');
+    const links = Array.isArray(details.links) ? details.links : [];
+    linksEl.innerHTML = links.length > 0
+        ? links.map(link => `<a href="${link.url}" target="_blank" rel="noopener" style="color:#1a73e8; text-decoration:none;">🔗 ${link.title}</a>`).join('')
+        : '<span style="color:#999;">No links available</span>';
+
+    const panel = document.getElementById('item-panel');
+    if (panel) {
+        panel.classList.add('open');
+        registerDetailPanelOpen('item-panel');
+    }
+}
+
+function closeItemPanel() {
+    const panel = document.getElementById('item-panel');
+    if (panel) panel.classList.remove('open');
+    unregisterDetailPanel('item-panel');
 }
 
 function openClassroomPanel(classroomName) {
@@ -807,12 +1057,16 @@ function openClassroomPanel(classroomName) {
     }
 
     const panel = document.getElementById('classroom-panel');
-    if (panel) panel.classList.add('open');
+    if (panel) {
+        panel.classList.add('open');
+        registerDetailPanelOpen('classroom-panel');
+    }
 }
 
 function closeClassroomPanel() {
     const panel = document.getElementById('classroom-panel');
     if (panel) panel.classList.remove('open');
+    unregisterDetailPanel('classroom-panel');
 }
 
 
@@ -853,7 +1107,7 @@ function renderFloorContent(floor) {
     const floorItems = floor.items || [];
     const crossFloorItems = currentBuildingFloors
         .flatMap(f => f.items || [])
-        .filter(item => CROSS_FLOOR_VISIBLE_TYPES.includes(item.layer_type));
+        .filter(item => CROSS_FLOOR_VISIBLE_TYPES.includes(normalizeLayerType(item.layer_type)));
 
     const seenFloorItems = new Set();
     currentFloorItems = [...floorItems, ...crossFloorItems].filter(item => {
@@ -907,18 +1161,20 @@ function renderItemsList() {
 
     let itemsToShow;
     if (activeItemFilter) {
-        itemsToShow = currentFloorItems.filter(item => item.layer_type === activeItemFilter);
+        itemsToShow = currentFloorItems.filter(item => normalizeLayerType(item.layer_type) === normalizeLayerType(activeItemFilter));
     } else {
         itemsToShow = currentFloorItems;
     }
 
-    itemsEl.innerHTML = itemsToShow.map(item => `<li>${item.name}</li>`).join('')
+    itemsEl.innerHTML = itemsToShow.map(item => `<li data-item-name="${item.name}" data-item-type="${item.layer_type}">${item.name}</li>`).join('')
         || '<li style="color:#999;">None listed</li>';
 }
 
 function closeBuildingPanel() {
     document.getElementById('building-panel').classList.remove('open');
     closeClassroomPanel();
+    closeItemPanel();
+    detailPanelOrder = [];
 
     if (itemLayerGroup) {
         map.removeLayer(itemLayerGroup);
@@ -933,17 +1189,20 @@ document.getElementById('building-panel-close').addEventListener('click', () => 
 });
 
 function transformFacilities(facilities) {
-    const buildingPolygons = facilities.filter(f => f.layer_type === 'polygon');
-    const pointFacilities = facilities.filter(f => f.layer_type !== 'polygon');
+    const buildingPolygons = facilities.filter(f => normalizeLayerType(f.layer_type) === 'polygon');
+    const pointFacilities = facilities.filter(f => normalizeLayerType(f.layer_type) !== 'polygon');
     const buildingAmenitySet = {};
 
     pointFacilities.forEach(f => {
-        if (!f.layer_type || f.layer_type === 'classroom') return;
-        const buildingKeys = getFacilityBuildingKeys(f);
+        if (!f.layer_type || normalizeLayerType(f.layer_type) === 'classroom') return;
+        const buildingKeys = getFacilityBuildingKeys(f)
+            .map(name => normalizeBuildingName(name))
+            .filter(name => name !== '');
+        const layerType = normalizeLayerType(f.layer_type);
         buildingKeys.forEach(buildingKey => {
             if (!buildingAmenitySet[buildingKey]) buildingAmenitySet[buildingKey] = [];
-            if (!buildingAmenitySet[buildingKey].includes(f.layer_type)) {
-                buildingAmenitySet[buildingKey].push(f.layer_type);
+            if (!buildingAmenitySet[buildingKey].includes(layerType)) {
+                buildingAmenitySet[buildingKey].push(layerType);
             }
         });
     });
@@ -952,19 +1211,28 @@ function transformFacilities(facilities) {
     const groupedByBuilding = {};
     const groupedClassroomsByBuilding = {};
     pointFacilities.forEach(f => {
-        const buildingKeys = getFacilityBuildingKeys(f);
+        const buildingKeys = getFacilityBuildingKeys(f)
+            .map(name => normalizeBuildingName(name))
+            .filter(name => name !== '');
+        const layerType = normalizeLayerType(f.layer_type);
         if (buildingKeys.length === 0) return;
 
         buildingKeys.forEach(buildingKey => {
             if (!groupedByBuilding[buildingKey]) groupedByBuilding[buildingKey] = {};
             const floorKey = f.floor || 'Unspecified';
-            if (f.layer_type === 'classroom') {
+            if (layerType === 'classroom') {
                 if (!groupedClassroomsByBuilding[buildingKey]) groupedClassroomsByBuilding[buildingKey] = {};
                 if (!groupedClassroomsByBuilding[buildingKey][floorKey]) groupedClassroomsByBuilding[buildingKey][floorKey] = [];
                 groupedClassroomsByBuilding[buildingKey][floorKey].push(f.name);
             } else {
                 if (!groupedByBuilding[buildingKey][floorKey]) groupedByBuilding[buildingKey][floorKey] = [];
-                groupedByBuilding[buildingKey][floorKey].push({ name: f.name, layer_type: f.layer_type });
+                groupedByBuilding[buildingKey][floorKey].push({
+                    ...f,
+                    layer_type: layerType,
+                    building: f.building,
+                    floor: f.floor,
+                    details: f.details || {}
+                });
             }
         });
     });
@@ -973,8 +1241,9 @@ function transformFacilities(facilities) {
     const buildingItems = buildingPolygons.map(poly => {
         const coords = poly.coords;
         const buildingName = poly.building;
-        const floorMap = groupedByBuilding[poly.building] || {};
-        const classroomMap = groupedClassroomsByBuilding[poly.building] || {};
+        const normalizedBuildingName = normalizeBuildingName(poly.building);
+        const floorMap = groupedByBuilding[normalizedBuildingName] || {};
+        const classroomMap = groupedClassroomsByBuilding[normalizedBuildingName] || {};
 
         let declaredFloors = [];
         if (poly.floor) {
@@ -1020,17 +1289,18 @@ function transformFacilities(facilities) {
             building: buildingName,
             description: poly.description || '',
             coords: coords,
-            amenity_types: buildingAmenitySet[buildingName] || [],
+            amenity_types: buildingAmenitySet[normalizedBuildingName] || [],
             floors: floors
         };
     });
 
-    const pointItems = pointFacilities.filter(f => f.coords && f.layer_type !== 'classroom'); 
+    const pointItems = pointFacilities.filter(f => f.coords && normalizeLayerType(f.layer_type) !== 'classroom'); 
 
     const sharedConnectorAreas = pointFacilities
         .filter(f => f.details && Array.isArray(f.details.connector_polygon) && f.details.connector_polygon.length >= 3)
         .map(f => ({
             name: f.name,
+            buildingName: f.building,
             coords: f.details.connector_polygon
         }));
 
