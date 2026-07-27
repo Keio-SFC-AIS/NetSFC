@@ -5,8 +5,7 @@ async function measureLatency() {
     const t1 = Date.now();
     
     const mockPayload = {
-        latitude: 1.0, 
-        longitude: 1.0, 
+        coords: [1.0, 1.0], 
         signal: 3.0,
         signal_strength: 3.0,
         ping_ms: 1.0
@@ -32,8 +31,7 @@ async function sendLatency(latitude, longitude, accuracy, ping_ms) {
     let signalScore = 3.0; // Wasn't too sure what signal meant, will update later
     
     const info = {
-        latitude: parsedLat,
-        longitude: parsedLon,
+        coords: [parsedLat, parsedLon],
         signal: signalScore,
         signal_strength: signalScore, 
         ping_ms: parsedPing,
@@ -53,8 +51,7 @@ async function measureAndSendBandwidth(latitude, longitude, ping_ms, sizeBytes =
     const padding = 'x'.repeat(sizeBytes);
 
     const info = {
-        latitude: parseFloat(latitude),
-        longitude: parseFloat(longitude),
+        coords: [parseFloat(latitude), parseFloat(longitude)],
         signal: 3.0,
         signal_strength: 3.0,
         ping_ms: parseFloat(ping_ms),
