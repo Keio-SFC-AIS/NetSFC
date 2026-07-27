@@ -4746,5 +4746,71 @@
       35.389069,
       139.426712
     ]
+  },
+  {
+    "id": 169,
+    "name": "Water Sever - Kappa Building (Front) 1F",
+    "layer_type": "water_fountain",
+    "building": "Kappa Building",
+    "floor": "1F",
+    "coords": [
+      35.387652,
+      139.426512
+    ]
+  },
+  {
+    "id": 170,
+    "name": "Lawson",
+    "layer_type": "restaurants",
+    "building": "Sigma Building",
+    "floor": "B1F",
+    "coords": [
+      35.38703935041442,
+      139.4259983000137
+    ]
+  },
+  {
+    "id": 171,
+    "name": "CO-OP Cafeteria",
+    "layer_type": "restaurants",
+    "building": "Sigma Building",
+    "floor": "B1F",
+    "coords": [
+      35.38736363612451,
+      139.42606238868507
+    ]
+  },
+  {
+    "id": 172,
+    "name": "Lady Bird",
+    "layer_type": "restaurants",
+    "building": "Sigma Building",
+    "floor": "1F",
+    "coords": [
+      35.38712715397163,
+      139.42614850350878
+    ]
+  },
+  {
+    "id": 173,
+    "name": "Subway",
+    "layer_type": "restaurants",
+    "building": "Subway Building",
+    "floor": "1F",
+    "coords": [
+      35.387619,
+      139.427413
+    ]
+  },
+  {
+    "id": 174,
+    "name": "Salt Dining",
+    "layer_type": "restaurants",
+    "building": "Heta Building",
+    "floor": "1F",
+    "coords": [
+      35.389597,
+      139.427749
+    ]
   }
 ]

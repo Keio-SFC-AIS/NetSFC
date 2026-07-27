@@ -14,6 +14,7 @@ const POI_ICONS = {
     garbage: '🗑️',
     printer: '🖨️',
     water_fountain: '🚰',
+    restaurants: '🍽️',
     elevator: '🛗',
     accessible_washroom: '♿',
     vending_machine: '🥤',
@@ -23,7 +24,7 @@ const POI_ICONS = {
 };
 
 const LABEL_ZOOM_THRESHOLD = 21;
-const GLOBAL_AMENITY_TYPES = ['aed', 'accessible_washroom', 'washroom', 'elevator', 'water_fountain', 'printer', 'vending_machine'];
+const GLOBAL_AMENITY_TYPES = ['aed', 'restaurants', 'accessible_washroom', 'washroom', 'elevator', 'water_fountain', 'printer', 'vending_machine'];
 const GLOBAL_AMENITY_MAX_ICONS = 5;
 const GLOBAL_AMENITY_MIN_ZOOM = 15.5;
 const GLOBAL_AMENITY_MAX_ZOOM = 19.5;
@@ -177,7 +178,9 @@ function loadPOIs() {
 
 function normalizeLayerType(layerType) {
     if (typeof layerType !== 'string') return '';
-    return layerType.trim().toLowerCase();
+    const normalized = layerType.trim().toLowerCase();
+    if (normalized === 'place_to_eat' || normalized === 'place to eat') return 'restaurants';
+    return normalized;
 }
 
 function isPointFacility(facility) {
@@ -289,8 +292,9 @@ function placePOIs(items) {
 
         // Handle Items
         if (item.coords.length === 2 && typeof item.coords[0] === 'number' && typeof item.coords[1] === 'number') {
-            const icon = POI_ICONS[item.layer_type] || '📍';
-            const labelText = item.layer_type.replace(/_/g, ' ');
+            const itemType = normalizeLayerType(item.layer_type);
+            const icon = POI_ICONS[itemType] || '📍';
+            const labelText = itemType.replace(/_/g, ' ');
             const html = `
                 <div class="poi-label">
                     <span class="poi-icon">${icon}</span>
@@ -1130,11 +1134,12 @@ function renderFloorContent(floor) {
 
     filterContainer.innerHTML = '';
     types.forEach(type => {
+        const normalizedType = normalizeLayerType(type);
         const btn = document.createElement('button');
         btn.className = 'item-filter-btn';
         btn.dataset.type = type; // 💡 优化项 6: 绑好 dataset.type 确保样式切换不报 ReferenceError
-        btn.textContent = POI_ICONS[type] || '📍';  
-        btn.title = type.replace(/_/g, ' ');   
+        btn.textContent = POI_ICONS[normalizedType] || '📍';
+        btn.title = normalizedType.replace(/_/g, ' ');
         btn.addEventListener('click', () => {
             if (activeItemFilter === type) {
                 activeItemFilter = null;
