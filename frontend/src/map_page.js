@@ -16,16 +16,23 @@ const POI_ICONS = {
     water_fountain: '🚰',
     elevator: '🛗',
     accessible_washroom: '♿',
+    vending_machine: '🥤',
+    aed: '🩺',
     building: '🏢'
 };
 
 const LABEL_ZOOM_THRESHOLD = 21;
+const GLOBAL_AMENITY_TYPES = ['aed', 'accessible_washroom', 'washroom', 'elevator', 'water_fountain', 'printer', 'vending_machine'];
+const GLOBAL_AMENITY_MAX_ICONS = 5;
+const GLOBAL_AMENITY_MAX_ZOOM = 19;
 
 let map;
 let heatLayer;
 let heatPoints = [];
 let buildingAliasLayerGroup = null;
 let buildingAliasMarkers = [];
+let buildingAmenityLayerGroup = null;
+let buildingAmenityMarkers = [];
 
 let userLocationMarker = null;
 let userAccuracyCircle = null;
@@ -89,6 +96,7 @@ window.onload = function() {
     map.on('zoomend', () => {
         updateLabelVisibility();
         updateBuildingAliasLabelSizes();
+        updateBuildingAmenityVisibility();
     });
 
     updateLabelVisibility();
@@ -123,8 +131,13 @@ function placePOIs(items) {
     if (buildingAliasLayerGroup) {
         map.removeLayer(buildingAliasLayerGroup);
     }
+    if (buildingAmenityLayerGroup) {
+        map.removeLayer(buildingAmenityLayerGroup);
+    }
     buildingAliasLayerGroup = L.layerGroup().addTo(map);
+    buildingAmenityLayerGroup = L.layerGroup().addTo(map);
     buildingAliasMarkers = [];
+    buildingAmenityMarkers = [];
 
     items.forEach(item => {
         if (!item.coords || !Array.isArray(item.coords)) {
@@ -177,13 +190,25 @@ function placePOIs(items) {
 
             if (item.alias) {
                 const aliasText = item.alias;
-                const aliasMarker = L.marker(getPolygonCentroid(item.coords), {
+                const aliasMarker = L.marker(getPolygonVisualCenter(polygon, item.coords), {
                     icon: createBuildingAliasIcon(aliasText, 14),
                     interactive: false,
                     keyboard: false,
                     zIndexOffset: 2000
                 }).addTo(buildingAliasLayerGroup);
                 buildingAliasMarkers.push({ marker: aliasMarker, alias: aliasText, coords: item.coords });
+            }
+
+            const amenityTypes = Array.isArray(item.amenity_types) ? item.amenity_types : [];
+            if (amenityTypes.length > 0) {
+                const amenityAnchor = getBuildingAmenityAnchor(polygon.getBounds());
+                const amenityMarker = L.marker(amenityAnchor, {
+                    icon: createBuildingAmenityIcon(amenityTypes),
+                    interactive: false,
+                    keyboard: false,
+                    zIndexOffset: 1900
+                }).addTo(buildingAmenityLayerGroup);
+                buildingAmenityMarkers.push(amenityMarker);
             }
 
             const handleBuildingClick = (event) => {
@@ -206,6 +231,7 @@ function placePOIs(items) {
     });
 
     updateBuildingAliasLabelSizes();
+    updateBuildingAmenityVisibility();
 }
 
 function createBuildingAliasIcon(aliasText, fontSizePx) {
@@ -242,6 +268,38 @@ function updateBuildingAliasLabelSizes() {
     });
 }
 
+function createBuildingAmenityIcon(types) {
+    const unique = [];
+    for (let i = 0; i < types.length; i++) {
+        const type = types[i];
+        if (!GLOBAL_AMENITY_TYPES.includes(type)) continue;
+        if (!unique.includes(type)) unique.push(type);
+    }
+
+    const selected = unique.slice(0, GLOBAL_AMENITY_MAX_ICONS);
+    const html = `
+        <div class="building-amenity-strip">${selected.map(type => `<span class="building-amenity-chip">${POI_ICONS[type] || '•'}</span>`).join('')}</div>
+    `;
+    const iconWidth = Math.max(24, selected.length * 18 + 8);
+
+    return L.divIcon({
+        html,
+        className: 'building-amenity-div-icon',
+        iconSize: [iconWidth, 18],
+        iconAnchor: [0, 18]
+    });
+}
+
+function updateBuildingAmenityVisibility() {
+    if (!map || !buildingAmenityLayerGroup) return;
+    const shouldShow = map.getZoom() <= GLOBAL_AMENITY_MAX_ZOOM;
+    if (shouldShow) {
+        if (!map.hasLayer(buildingAmenityLayerGroup)) map.addLayer(buildingAmenityLayerGroup);
+    } else if (map.hasLayer(buildingAmenityLayerGroup)) {
+        map.removeLayer(buildingAmenityLayerGroup);
+    }
+}
+
 function getPolygonDisplayMetrics(coords) {
     let minX = Infinity;
     let minY = Infinity;
@@ -266,6 +324,46 @@ function getPolygonDisplayMetrics(coords) {
         width: Math.max(1, maxX - minX),
         height: Math.max(1, maxY - minY)
     };
+}
+
+function getPolygonVisualCenter(polygon, coords) {
+    const boundsCenter = polygon.getBounds().getCenter();
+    if (isPointInsidePolygon(boundsCenter, coords)) {
+        return [boundsCenter.lat, boundsCenter.lng];
+    }
+    return getPolygonCentroid(coords);
+}
+
+function isPointInsidePolygon(latlng, coords) {
+    const x = latlng.lng;
+    const y = latlng.lat;
+    let inside = false;
+
+    for (let i = 0, j = coords.length - 1; i < coords.length; j = i++) {
+        const xi = coords[i][1];
+        const yi = coords[i][0];
+        const xj = coords[j][1];
+        const yj = coords[j][0];
+
+        const intersect = ((yi > y) !== (yj > y))
+            && (x < ((xj - xi) * (y - yi)) / ((yj - yi) || 1e-12) + xi);
+
+        if (intersect) inside = !inside;
+    }
+
+    return inside;
+}
+
+function getBuildingAmenityAnchor(bounds) {
+    const sw = bounds.getSouthWest();
+    const ne = bounds.getNorthEast();
+    const latSpan = Math.abs(ne.lat - sw.lat);
+    const lngSpan = Math.abs(ne.lng - sw.lng);
+
+    return [
+        sw.lat + latSpan * 0.12,
+        sw.lng + lngSpan * 0.10
+    ];
 }
 
 function getPolygonCentroid(coords) {
@@ -764,6 +862,15 @@ document.getElementById('building-panel-close').addEventListener('click', () => 
 function transformFacilities(facilities) {
     const buildingPolygons = facilities.filter(f => f.layer_type === 'polygon');
     const pointFacilities = facilities.filter(f => f.layer_type !== 'polygon');
+    const buildingAmenitySet = {};
+
+    pointFacilities.forEach(f => {
+        if (!f.building || !f.layer_type || f.layer_type === 'classroom') return;
+        if (!buildingAmenitySet[f.building]) buildingAmenitySet[f.building] = [];
+        if (!buildingAmenitySet[f.building].includes(f.layer_type)) {
+            buildingAmenitySet[f.building].push(f.layer_type);
+        }
+    });
 
     // Group point facilities by building -> floor -> items
     const groupedByBuilding = {};
@@ -834,6 +941,7 @@ function transformFacilities(facilities) {
             building: buildingName,
             description: poly.description || '',
             coords: coords,
+            amenity_types: buildingAmenitySet[buildingName] || [],
             floors: floors
         };
     });

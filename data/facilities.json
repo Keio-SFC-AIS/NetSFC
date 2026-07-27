@@ -373,6 +373,7 @@
     "layer_type": "polygon",
     "building": "Media Center",
     "floor": "1F, 2F, 3F",
+    "alias": "Μ",
     "floor_images": {
       "1F": "/data/images/media_center_1f.png",
       "2F": "/data/images/media_center_2f.png",
@@ -439,6 +440,7 @@
     "layer_type": "polygon",
     "building": "Alpha Building",
     "floor": "1F, 2F",
+    "alias": "Α",
     "coords": [
       [
         35.3882089,
