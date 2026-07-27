@@ -26,6 +26,16 @@ bash test/seed_measurements.sh http://127.0.0.1:8080 8
 
 This inserts N synthetic points for quick validation.
 
+## 2.1) Seed fake SFC heatmap points (off-campus demo)
+
+Run:
+
+```bash
+bash test/seed_fake_heatmap.sh http://127.0.0.1:8080 20
+```
+
+This injects randomized measurements inside SFC bounds so the map heat layer can be tested even when you are physically outside campus.
+
 ## 3) WebSocket test (no websocat required)
 
 Open in browser:
