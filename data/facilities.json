@@ -3825,39 +3825,6 @@
     }
   },
   {
-    "id": 89,
-    "name": "Men's Washroom - Alpha Building 2F",
-    "layer_type": "washroom",
-    "building": "Alpha Building",
-    "floor": "2F",
-    "coords": [
-      35.387778,
-      139.428889
-    ]
-  },
-  {
-    "id": 90,
-    "name": "Women's Washroom - Alpha Building 2F",
-    "layer_type": "washroom",
-    "building": "Alpha Building",
-    "floor": "2F",
-    "coords": [
-      35.387778,
-      139.428056
-    ]
-  },
-  {
-    "id": 91,
-    "name": "Garbage Cans - Alpha Building 2F",
-    "layer_type": "garbage",
-    "building": "Alpha Building",
-    "floor": "2F",
-    "coords": [
-      35.387778,
-      139.428056
-    ]
-  },
-  {
     "id": 92,
     "name": "Garbage Cans - Omicron Building 1F",
     "layer_type": "garbage",
@@ -3996,8 +3963,8 @@
     "building": "Kappa Building",
     "floor": "1F",
     "coords": [
-      35.3875,
-      139.426528
+      35.387626,
+      139.426502
     ]
   },
   {
@@ -4251,17 +4218,6 @@
     "coords": [
       35.387727,
       139.426218
-    ]
-  },
-  {
-    "id": 128,
-    "name": "Garbage Can (Front) - Kappa Building 1F",
-    "layer_type": "garbage",
-    "building": "Kappa Building",
-    "floor": "1F",
-    "coords": [
-      35.387675,
-      139.42648
     ]
   },
   {
