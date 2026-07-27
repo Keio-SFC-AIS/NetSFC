@@ -4451,5 +4451,38 @@
       35.387677,
       139.427488
     ]
+  },
+  {
+    "id": 149,
+    "name": "AED - Alpha Building",
+    "layer_type": "aed",
+    "building": "Alpha Building",
+    "floor": "1F",
+    "coords": [
+      35.388332,
+      139.427938
+    ]
+  },
+  {
+    "id": 150,
+    "name": "AED - Mu Building (Media Center)",
+    "layer_type": "aed",
+    "building": "Media Center",
+    "floor": "1F",
+    "coords": [
+      35.388304,
+      139.427341
+    ]
+  },
+  {
+    "id": 151,
+    "name": "AED - Iota Building",
+    "layer_type": "aed",
+    "building": "Iota Building",
+    "floor": "1F",
+    "coords": [
+      35.388332,
+      139.42653
+    ]
   }
 ]

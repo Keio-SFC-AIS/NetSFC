@@ -17,7 +17,7 @@ const POI_ICONS = {
     elevator: '🛗',
     accessible_washroom: '♿',
     vending_machine: '🥤',
-    aed: '🩺',
+    aed: '❤️',
     building: '🏢'
 };
 
