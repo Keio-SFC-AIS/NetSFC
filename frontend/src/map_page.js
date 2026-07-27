@@ -93,7 +93,7 @@ window.onload = function() {
         radius: 35,
         blur: 25,
         maxZoom: MAP_CONFIG.maxZoom,
-        gradient: { 0.4: 'blue', 0.7: 'orange', 1.0: 'red' }
+        gradient: { 0.4: '#9aa0a6', 0.7: 'orange', 1.0: 'red' }
     }).addTo(map);
 
     map.on('zoomend', () => {
@@ -104,6 +104,9 @@ window.onload = function() {
 
     updateLabelVisibility();
     loadPOIs();
+    loadHeatmapData();
+    // initHeatmapSocket();
+    initHeatmapToggle();
     initGeolocation();
     initSettingsModal();
     initCategoryChips();
@@ -129,6 +132,38 @@ function loadPOIs() {
             console.error('Failed to load POIs', error);
         });
 }
+
+function loadHeatmapData() {
+    const demoData = [
+            { coords: [35.387700, 139.426500], weight: 0.9 },
+            { coords: [35.387750, 139.426550], weight: 0.6 },
+            { coords: [35.387600, 139.426400], weight: 0.4 },
+            { coords: [35.388100, 139.426800], weight: 0.7 },
+            { coords: [35.387900, 139.426300], weight: 0.3 }
+        ];
+
+    heatPoints = demoData.map(point => [point.coords[0], point.coords[1], point.weight]);
+    heatLayer.setLatLngs(heatPoints);
+    console.log(heatPoints); // should show your 5 demo points as [lat, lng, weight] arrays
+    console.log(map.hasLayer(heatLayer)); // should be true
+
+    /*const url = `${window.ENV.API_HOST}/api/measurements/heatmap`;
+    fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Heatmap request failed: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            heatPoints = data.map(point => [point.coords[0], point.coords[1], point.weight]);
+            heatLayer.setLatLngs(heatPoints);
+        })
+        .catch(error => {
+            console.error('Failed to load heatmap data', error);
+        });*/
+}
+
 
 function placePOIs(items) {
     if (buildingAliasLayerGroup) {
@@ -235,6 +270,51 @@ function placePOIs(items) {
 
     updateBuildingAliasLabelSizes();
     updateBuildingAmenityVisibility();
+}
+
+let heatmapSocket = null;
+
+function initHeatmapSocket() {
+    const wsUrl = `${apiHost}/ws/heatmap`; 
+
+    heatmapSocket = new WebSocket(wsUrl);
+
+    heatmapSocket.onmessage = (event) => {
+        const message = JSON.parse(event.data);
+
+        if (message.type === 'NEW_MEASUREMENT') {
+            const point = message.data;
+            const newPoint = [point.coords[0], point.coords[1], point.weight];
+            heatPoints.push(newPoint);
+            heatLayer.setLatLngs(heatPoints);
+        }
+    };
+
+    heatmapSocket.onerror = (error) => {
+        console.error('Heatmap WebSocket error:', error);
+    };
+
+    heatmapSocket.onclose = () => {
+        console.warn('Heatmap WebSocket closed. Reconnecting in 5s...');
+        setTimeout(initHeatmapSocket, 5000);
+    };
+}
+
+function toggleHeatmap(isVisible) {
+    if (isVisible) {
+        heatLayer.addTo(map);
+    } else {
+        map.removeLayer(heatLayer);
+    }
+}
+
+function initHeatmapToggle() {
+    const checkbox = document.getElementById('setting-heatmap');
+    if (!checkbox) return;
+
+    checkbox.addEventListener('change', () => {
+        toggleHeatmap(checkbox.checked);
+    });
 }
 
 function createBuildingAliasIcon(aliasText, fontSizePx) {
@@ -855,7 +935,7 @@ function renderFloorContent(floor) {
     types.forEach(type => {
         const btn = document.createElement('button');
         btn.className = 'item-filter-btn';
-        btn.dataset.type = type; // 💡 优化项 6: 绑好 dataset.type 确保样式切换不报 ReferenceError
+        btn.dataset.type = type; 
         btn.textContent = POI_ICONS[type] || '📍';  
         btn.title = type.replace(/_/g, ' ');   
         btn.addEventListener('click', () => {
