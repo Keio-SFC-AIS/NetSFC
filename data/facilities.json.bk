@@ -39,8 +39,8 @@
     "building": "Omicron Building",
     "floor": "1F",
     "coords": [
-      35.388638,
-      139.426743
+      35.388056,
+      139.426667
     ]
   },
   {
@@ -50,8 +50,8 @@
     "building": "Omicron Building",
     "floor": "1F",
     "coords": [
-      35.388648,
-      139.426702
+      35.388611,
+      139.426667
     ]
   },
   {
@@ -61,8 +61,8 @@
     "building": "Omicron Building",
     "floor": "1F",
     "coords": [
-      35.388653,
-      139.426663
+      35.388611,
+      139.426667
     ]
   },
   {
@@ -72,8 +72,8 @@
     "building": "Omicron Building",
     "floor": "2F",
     "coords": [
-      35.388668,
-      139.426753
+      35.388333,
+      139.426944
     ]
   },
   {
@@ -83,8 +83,8 @@
     "building": "Omicron Building",
     "floor": "1F",
     "coords": [
-      35.388692,
-      139.426471
+      35.388611,
+      139.426528
     ]
   },
   {
@@ -94,8 +94,8 @@
     "building": "Omicron Building",
     "floor": "1F",
     "coords": [
-      35.388748,
-      139.426294
+      35.388611,
+      139.426528
     ]
   },
   {
@@ -105,8 +105,8 @@
     "building": "Omicron Building",
     "floor": "1F",
     "coords": [
-      35.388764,
-      139.426336
+      35.388611,
+      139.426528
     ]
   },
   {
@@ -116,8 +116,8 @@
     "building": "Omicron Building",
     "floor": "1F",
     "coords": [
-      35.388783,
-      139.426361
+      35.388333,
+      139.426528
     ]
   },
   {
@@ -127,8 +127,8 @@
     "building": "Omicron Building",
     "floor": "1F",
     "coords": [
-      35.38878,
-      139.426399
+      35.388333,
+      139.426528
     ]
   },
   {
@@ -160,8 +160,8 @@
     "building": "Epsilon Building",
     "floor": "1F",
     "coords": [
-      35.388003,
-      139.426295
+      35.387778,
+      139.426528
     ]
   },
   {
@@ -188,13 +188,13 @@
   },
   {
     "id": 19,
-    "name": "Printer - Sigma Building Cafeteria B1F",
+    "name": "Printer - Sigma Building Cafeteria",
     "layer_type": "printer",
     "building": "Sigma Building",
-    "floor": "B1F",
+    "floor": "1F",
     "coords": [
-      35.387321,
-      139.426078
+      35.387222,
+      139.426528
     ]
   },
   {
