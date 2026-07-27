@@ -5,6 +5,7 @@
     "layer_type": "polygon",
     "building": "Kappa Building",
     "floor": "1F, 2F",
+    "alias": "κ",
     "floor_images": {
       "1F": "/data/images/kappa_1_1f.png",
       "2F": "/data/images/Kappa Building 1 Floor 2.png"
@@ -70,6 +71,7 @@
     "layer_type": "polygon",
     "building": "Epsilon Building",
     "floor": "1F, 2F",
+    "alias": "ε",
     "floor_images": {
       "1F": "/data/images/epsilon_1_1f.png",
       "2F": "/data/images/epsilon_1_2f.png"
@@ -135,6 +137,7 @@
     "layer_type": "polygon",
     "building": "Iota Building",
     "floor": "1F, 2F",
+    "alias": "ι",
     "floor_images": {
       "1F": "/data/images/iota_1_1f.png",
       "2F": "/data/images/iota_1_2f.png"
@@ -200,6 +203,7 @@
     "layer_type": "polygon",
     "building": "Omicron Building",
     "floor": "1F, 2F",
+    "alias": "ο",
     "floor_images": {
       "1F": "/data/images/omicron_1_1f.png",
       "2F": "/data/images/omicron_1_2f.png"
@@ -265,6 +269,7 @@
     "layer_type": "polygon",
     "building": "Lambda Building",
     "floor": "1F, 2F",
+    "alias": "λ",
     "floor_images": {
       "1F": "/data/images/lambda_1_1f.png",
       "2F": "/data/images/lambda_1_2f.png"
@@ -330,6 +335,7 @@
     "layer_type": "polygon",
     "building": "Theta Building",
     "floor": "1F",
+    "alias": "θ",
     "coords": [
       [
         35.3888167,
@@ -494,6 +500,7 @@
     "layer_type": "polygon",
     "building": "Omega Building",
     "floor": "1F, 2F",
+    "alias": "Ω",
     "floor_images": {
       "1F": "/data/images/omega_1f.png",
       "2F": "/data/images/omega_2f.png"
@@ -567,6 +574,7 @@
     "layer_type": "polygon",
     "building": "Sigma Building",
     "floor": "B1F, 1F, 2F",
+    "alias": "Σ",
     "coords": [
       [
         35.3874618,
@@ -628,6 +636,7 @@
     "layer_type": "polygon",
     "building": "Delta Building",
     "floor": "1F, 2F",
+    "alias": "Δ",
     "coords": [
       [
         35.3886524,
@@ -657,6 +666,7 @@
     "layer_type": "polygon",
     "building": "Tau Building",
     "floor": "1F, 2F, 3F",
+    "alias": "τ",
     "coords": [
       [
         35.3890182,
