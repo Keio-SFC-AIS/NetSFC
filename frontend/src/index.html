@@ -534,6 +534,15 @@
     .gm-list li:last-child { 
       border-bottom: none; 
     }
+    #building-panel-items li[data-item-name] {
+      cursor: pointer;
+      transition: background 0.16s ease, color 0.16s ease, transform 0.16s ease;
+    }
+    #building-panel-items li[data-item-name]:hover {
+      background: #f8fbff;
+      color: #1a73e8;
+      transform: translateX(2px);
+    }
 
     .gm-pills-list {
       display: flex;
@@ -751,9 +760,25 @@
       padding: 1px 0;
     }
 
+    @media (max-width: 1100px) {
+      .building-panel {
+        width: 344px;
+        max-height: calc(100vh - 120px);
+      }
+      .classroom-panel {
+        left: auto;
+        right: 16px;
+        width: min(380px, calc(100vw - 392px));
+      }
+      .category-chips-bar {
+        max-width: calc(100vw - 420px);
+      }
+    }
+
     @media (max-width: 600px) {
       .classroom-panel {
         left: 0;
+        right: 0;
         top: auto;
         bottom: 0;
         width: 100%;
@@ -954,7 +979,7 @@
   </div>
 
   <div class="cr-panel-body">
-    <div class="cr-gallery-container">
+    <div id="item-gallery-container" class="cr-gallery-container">
       <div class="cr-hero-wrap">
         <img id="item-hero-img" class="cr-hero-img" src="" alt="Item view" style="display:none;" />
         <div id="item-hero-placeholder" class="cr-hero-placeholder">Image Placeholder</div>

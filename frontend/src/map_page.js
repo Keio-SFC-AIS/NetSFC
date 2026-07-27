@@ -3,8 +3,8 @@
 import { boundCheck } from './measure_page.js';
 
 const MAP_CONFIG = {
-    center: [35.3883, 139.4283], // default center, SFC campus
-    zoom: 17,
+    center: [35.388228020107945, 139.42707616563885], // default center, SFC campus
+    zoom: 18.5,
     minZoom: 10,
     maxZoom: 22,
 };
@@ -66,6 +66,8 @@ const REGION_HOVER_FILL_OPACITY = 0.40;
 const DETAIL_PANEL_BASE_LEFT = 388;
 const DETAIL_PANEL_WIDTH = 380;
 const DETAIL_PANEL_GAP = 16;
+const MEDIUM_LAYOUT_BREAKPOINT = 1100;
+const MOBILE_LAYOUT_BREAKPOINT = 600;
 
 let map;
 let heatLayer;
@@ -888,10 +890,38 @@ function unregisterDetailPanel(panelId) {
 function updateDetailPanelPositions() {
     const panels = ['classroom-panel', 'item-panel'];
 
-    if (window.innerWidth <= 600) {
+    if (window.innerWidth <= MOBILE_LAYOUT_BREAKPOINT) {
         panels.forEach(panelId => {
             const panel = document.getElementById(panelId);
-            if (panel) panel.style.left = '';
+            if (!panel) return;
+            panel.style.left = '';
+            panel.style.right = '';
+            panel.style.top = '';
+            panel.style.maxHeight = '';
+        });
+        return;
+    }
+
+    if (window.innerWidth <= MEDIUM_LAYOUT_BREAKPOINT) {
+        const availableHeight = Math.max(220, Math.floor((window.innerHeight - 120 - DETAIL_PANEL_GAP - 32) / 2));
+
+        detailPanelOrder.forEach((panelId, index) => {
+            const panel = document.getElementById(panelId);
+            if (!panel || !panel.classList.contains('open')) return;
+            panel.style.left = '';
+            panel.style.right = '16px';
+            panel.style.top = `${90 + index * (availableHeight + DETAIL_PANEL_GAP)}px`;
+            panel.style.maxHeight = `${availableHeight}px`;
+        });
+
+        panels.forEach(panelId => {
+            if (detailPanelOrder.includes(panelId)) return;
+            const panel = document.getElementById(panelId);
+            if (!panel) return;
+            panel.style.left = '';
+            panel.style.right = '16px';
+            panel.style.top = '90px';
+            panel.style.maxHeight = `${availableHeight}px`;
         });
         return;
     }
@@ -900,6 +930,9 @@ function updateDetailPanelPositions() {
         const panel = document.getElementById(panelId);
         if (!panel || !panel.classList.contains('open')) return;
         panel.style.left = `${DETAIL_PANEL_BASE_LEFT + index * (DETAIL_PANEL_WIDTH + DETAIL_PANEL_GAP)}px`;
+        panel.style.right = '';
+        panel.style.top = '';
+        panel.style.maxHeight = '';
     });
 
     panels.forEach(panelId => {
@@ -907,6 +940,9 @@ function updateDetailPanelPositions() {
         const panel = document.getElementById(panelId);
         if (panel && !panel.classList.contains('open')) {
             panel.style.left = `${DETAIL_PANEL_BASE_LEFT}px`;
+            panel.style.right = '';
+            panel.style.top = '';
+            panel.style.maxHeight = '';
         }
     });
 }
@@ -927,12 +963,14 @@ function openItemPanel(item) {
     const heroImg = document.getElementById('item-hero-img');
     const heroPlaceholder = document.getElementById('item-hero-placeholder');
     const heroCaption = document.getElementById('item-hero-caption');
+    const galleryContainer = document.getElementById('item-gallery-container');
     const thumbnailsRow = document.getElementById('item-thumbnails-row');
     thumbnailsRow.innerHTML = '';
 
     const getFullUrl = (url) => url.startsWith('http') ? url : `${baseUrl}/${url.replace(/^\//, '')}`;
 
     if (images.length > 0) {
+        if (galleryContainer) galleryContainer.style.display = 'flex';
         heroImg.style.display = 'block';
         heroPlaceholder.style.display = 'none';
         heroImg.src = getFullUrl(images[0].url);
@@ -956,9 +994,10 @@ function openItemPanel(item) {
             thumbnailsRow.appendChild(thumb);
         });
     } else {
+        if (galleryContainer) galleryContainer.style.display = 'none';
         heroImg.style.display = 'none';
         heroImg.src = '';
-        heroPlaceholder.style.display = 'flex';
+        heroPlaceholder.style.display = 'none';
         heroCaption.textContent = 'Preview';
     }
 
@@ -1171,7 +1210,7 @@ function renderItemsList() {
         itemsToShow = currentFloorItems;
     }
 
-    itemsEl.innerHTML = itemsToShow.map(item => `<li data-item-name="${item.name}" data-item-type="${item.layer_type}">${item.name}</li>`).join('')
+    itemsEl.innerHTML = itemsToShow.map(item => `<li class="building-item-entry" data-item-name="${item.name}" data-item-type="${item.layer_type}">${item.name}</li>`).join('')
         || '<li style="color:#999;">None listed</li>';
 }
 

@@ -3845,7 +3845,15 @@
     "coords": [
       35.388638,
       139.426743
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_92_garbage_cans_omicron_building_1f.png",
+          "label": "Full View"
+        }
+      ]
+    }
   },
   {
     "id": 93,
@@ -3856,7 +3864,15 @@
     "coords": [
       35.388648,
       139.426702
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_93_mens_washroom_omicron_building_1f_front.png",
+          "label": "Full View"
+        }
+      ]
+    }
   },
   {
     "id": 94,
@@ -3867,7 +3883,19 @@
     "coords": [
       35.388653,
       139.426663
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_94_womens_washroom_omicron_building_1f_front.png",
+          "label": "Full View"
+        },
+        {
+          "url": "data/images/items/item_94_womens_washroom_omicron_building_1f_front_2.png",
+          "label": "Detail View"
+        }
+      ]
+    }
   },
   {
     "id": 95,
@@ -3878,7 +3906,15 @@
     "coords": [
       35.388668,
       139.426753
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_95_garbage_cans_omicron_building_2f_front.png",
+          "label": "Full View"
+        }
+      ]
+    }
   },
   {
     "id": 96,
@@ -3889,7 +3925,15 @@
     "coords": [
       35.388692,
       139.426471
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_96_printer_omicron_building_back.png",
+          "label": "Full View"
+        }
+      ]
+    }
   },
   {
     "id": 97,
@@ -3900,7 +3944,15 @@
     "coords": [
       35.388748,
       139.426294
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_97_garbage_cans_omicron_building_back.png",
+          "label": "Full View"
+        }
+      ]
+    }
   },
   {
     "id": 98,
@@ -3922,7 +3974,15 @@
     "coords": [
       35.388783,
       139.426361
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_99_accessible_washroom_omicron_building_back.png",
+          "label": "Full View"
+        }
+      ]
+    }
   },
   {
     "id": 100,
@@ -3933,7 +3993,15 @@
     "coords": [
       35.38878,
       139.426399
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_100_mens_washroom_omicron_building_back.png",
+          "label": "Full View"
+        }
+      ]
+    }
   },
   {
     "id": 101,
@@ -3955,7 +4023,15 @@
     "coords": [
       35.388003,
       139.426295
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_103_printer_epsilon_building_1f_back.png",
+          "label": "Full View"
+        }
+      ]
+    }
   },
   {
     "id": 104,
@@ -3999,7 +4075,15 @@
     "coords": [
       35.389054,
       139.4274
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_107_womens_washroom_theta_building.png",
+          "label": "Full View"
+        }
+      ]
+    }
   },
   {
     "id": 108,
@@ -4010,7 +4094,15 @@
     "coords": [
       35.388988,
       139.427384
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_108_mens_washroom_theta_building.png",
+          "label": "Full View"
+        }
+      ]
+    }
   },
   {
     "id": 109,
@@ -4021,7 +4113,15 @@
     "coords": [
       35.388913,
       139.4273
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_109_garbage_can_upper_theta_building.png",
+          "label": "Full View"
+        }
+      ]
+    }
   },
   {
     "id": 110,
@@ -4032,7 +4132,15 @@
     "coords": [
       35.388778,
       139.427612
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_110_garbage_can_lower_theta_building.png",
+          "label": "Full View"
+        }
+      ]
+    }
   },
   {
     "id": 111,
@@ -4065,7 +4173,15 @@
     "coords": [
       35.387965,
       139.427961
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_113_garbage_can_omega_building_1f.png",
+          "label": "Full View"
+        }
+      ]
+    }
   },
   {
     "id": 114,
@@ -4076,7 +4192,15 @@
     "coords": [
       35.387875,
       139.42787
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_114_mens_washroom_omega_building_1f.png",
+          "label": "Full View"
+        }
+      ]
+    }
   },
   {
     "id": 115,
@@ -4087,7 +4211,15 @@
     "coords": [
       35.387828,
       139.42786
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_115_water_server_omega_building.png",
+          "label": "Full View"
+        }
+      ]
+    }
   },
   {
     "id": 116,
@@ -4109,7 +4241,15 @@
     "coords": [
       35.387874,
       139.427868
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_117_mens_washroom_omega_building_2f.png",
+          "label": "Full View"
+        }
+      ]
+    }
   },
   {
     "id": 118,
@@ -4120,7 +4260,15 @@
     "coords": [
       35.387781,
       139.427844
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_118_womens_washroom_omega_building_2f.png",
+          "label": "Full View"
+        }
+      ]
+    }
   },
   {
     "id": 119,
@@ -4131,7 +4279,15 @@
     "coords": [
       35.387743,
       139.427742
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_119_garbage_can_omega_building_2f.png",
+          "label": "Full View"
+        }
+      ]
+    }
   },
   {
     "id": 120,
@@ -4153,7 +4309,15 @@
     "coords": [
       35.38709,
       139.426089
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_121_water_server_sigma_building.png",
+          "label": "Full View"
+        }
+      ]
+    }
   },
   {
     "id": 122,
@@ -4164,7 +4328,15 @@
     "coords": [
       35.38709,
       139.426061
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_122_womens_washroom_sigma_building.png",
+          "label": "Full View"
+        }
+      ]
+    }
   },
   {
     "id": 123,
@@ -4175,7 +4347,15 @@
     "coords": [
       35.387093,
       139.426031
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_123_mens_washroom_sigma_building.png",
+          "label": "Full View"
+        }
+      ]
+    }
   },
   {
     "id": 124,
@@ -4186,7 +4366,15 @@
     "coords": [
       35.38698,
       139.426047
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_124_vending_machine_sigma_building.png",
+          "label": "Full View"
+        }
+      ]
+    }
   },
   {
     "id": 125,
@@ -4197,7 +4385,15 @@
     "coords": [
       35.387684,
       139.426078
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_125_womens_washroom_back_kappa_building_1f.png",
+          "label": "Full View"
+        }
+      ]
+    }
   },
   {
     "id": 126,
@@ -4208,7 +4404,15 @@
     "coords": [
       35.38768,
       139.426138
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_126_mens_washroom_back_kappa_building_1f.png",
+          "label": "Full View"
+        }
+      ]
+    }
   },
   {
     "id": 127,
@@ -4219,7 +4423,15 @@
     "coords": [
       35.387727,
       139.426218
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_127_garbage_can_back_kappa_building_1f.png",
+          "label": "Full View"
+        }
+      ]
+    }
   },
   {
     "id": 129,
@@ -4241,7 +4453,15 @@
     "coords": [
       35.387609,
       139.426428
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_130_mens_washroom_front_kappa_building_1f.png",
+          "label": "Full View"
+        }
+      ]
+    }
   },
   {
     "id": 131,
@@ -4252,7 +4472,15 @@
     "coords": [
       35.387671,
       139.4265
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_131_garbage_can_front_kappa_building_2f.png",
+          "label": "Full View"
+        }
+      ]
+    }
   },
   {
     "id": 132,
@@ -4263,7 +4491,15 @@
     "coords": [
       35.387968,
       139.426586
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_132_garbage_can_front_epsilon_building_1f.png",
+          "label": "Full View"
+        }
+      ]
+    }
   },
   {
     "id": 133,
@@ -4274,7 +4510,15 @@
     "coords": [
       35.387989,
       139.426549
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_133_mens_washroom_front_epsilon_building_1f.png",
+          "label": "Full View"
+        }
+      ]
+    }
   },
   {
     "id": 134,
@@ -4296,7 +4540,15 @@
     "coords": [
       35.388009,
       139.426584
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_135_garbage_can_front_epsilon_building_2f.png",
+          "label": "Full View"
+        }
+      ]
+    }
   },
   {
     "id": 136,
@@ -4307,7 +4559,15 @@
     "coords": [
       35.388029,
       139.426121
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_136_garbage_can_back_epsilon_building_1f.png",
+          "label": "Full View"
+        }
+      ]
+    }
   },
   {
     "id": 137,
@@ -4318,7 +4578,15 @@
     "coords": [
       35.388059,
       139.426144
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_137_womens_washroom_back_epsilon_building_1f.png",
+          "label": "Full View"
+        }
+      ]
+    }
   },
   {
     "id": 138,
@@ -4329,7 +4597,15 @@
     "coords": [
       35.388103,
       139.426208
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_138_accessible_washroom_back_epsilon_building_1f.png",
+          "label": "Full View"
+        }
+      ]
+    }
   },
   {
     "id": 139,
@@ -4340,7 +4616,15 @@
     "coords": [
       35.388092,
       139.426278
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_139_mens_washroom_back_epsilon_building_1f.png",
+          "label": "Full View"
+        }
+      ]
+    }
   },
   {
     "id": 140,
@@ -4362,7 +4646,15 @@
     "coords": [
       35.388352,
       139.426323
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_141_mens_washroom_back_iota_building_1f.png",
+          "label": "Full View"
+        }
+      ]
+    }
   },
   {
     "id": 142,
@@ -4384,7 +4676,15 @@
     "coords": [
       35.388343,
       139.426664
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_143_garbage_can_front_iota_building_1f.png",
+          "label": "Full View"
+        }
+      ]
+    }
   },
   {
     "id": 144,
@@ -4395,7 +4695,15 @@
     "coords": [
       35.388337,
       139.426582
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_144_womens_washroom_front_iota_building_1f.png",
+          "label": "Full View"
+        }
+      ]
+    }
   },
   {
     "id": 145,
@@ -4406,7 +4714,15 @@
     "coords": [
       35.388309,
       139.426613
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_145_mens_washroom_front_iota_building_1f.png",
+          "label": "Full View"
+        }
+      ]
+    }
   },
   {
     "id": 146,
@@ -4439,7 +4755,15 @@
     "coords": [
       35.387677,
       139.427488
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_148_vending_machine_subway.png",
+          "label": "Full View"
+        }
+      ]
+    }
   },
   {
     "id": 149,
@@ -4756,7 +5080,15 @@
     "coords": [
       35.387652,
       139.426512
-    ]
+    ],
+    "details": {
+      "images": [
+        {
+          "url": "data/images/items/item_169_water_sever_kappa_building_front_1f.png",
+          "label": "Full View"
+        }
+      ]
+    }
   },
   {
     "id": 170,
