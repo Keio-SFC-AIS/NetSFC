@@ -35,6 +35,7 @@ let buildingAliasLayerGroup = null;
 let buildingAliasMarkers = [];
 let buildingAmenityLayerGroup = null;
 let buildingAmenityMarkers = [];
+let sharedConnectorLayerGroup = null;
 
 let userLocationMarker = null;
 let userAccuracyCircle = null;
@@ -121,13 +122,32 @@ function loadPOIs() {
         })
         .then(facilities => {
             allRawFacilities = facilities;
-            const { buildingItems, pointItems } = transformFacilities(facilities);
+            const { buildingItems, pointItems, sharedConnectorAreas } = transformFacilities(facilities);
             allPointFacilities = pointItems;
+            placeSharedConnectorAreas(sharedConnectorAreas);
             placePOIs(buildingItems);
         })
         .catch(error => {
             console.error('Failed to load POIs', error);
         });
+}
+
+function placeSharedConnectorAreas(areas) {
+    if (sharedConnectorLayerGroup) {
+        map.removeLayer(sharedConnectorLayerGroup);
+    }
+    sharedConnectorLayerGroup = L.layerGroup().addTo(map);
+
+    (areas || []).forEach(area => {
+        if (!Array.isArray(area.coords) || area.coords.length < 3) return;
+
+        L.polygon(area.coords, {
+            color: '#1a73e8',
+            weight: 1.5,
+            fillOpacity: 0.20,
+            interactive: false
+        }).addTo(sharedConnectorLayerGroup);
+    });
 }
 
 function placePOIs(items) {
@@ -501,16 +521,19 @@ function filterPOIsByCategory(category) {
 
     categoryFilterLayerGroup = L.layerGroup().addTo(map);
 
+    const isPointFacility = (f) => Array.isArray(f.coords)
+        && f.coords.length === 2
+        && typeof f.coords[0] === 'number'
+        && typeof f.coords[1] === 'number';
+
     let matchingFacilities;
     if (category === 'all') {
-        matchingFacilities = allPointFacilities;
+        matchingFacilities = allPointFacilities.filter(isPointFacility);
     } else {
-        matchingFacilities = allPointFacilities.filter(f => f.layer_type === category);
+        matchingFacilities = allPointFacilities.filter(f => f.layer_type === category && isPointFacility(f));
     }
 
     matchingFacilities.forEach(item => {
-        if (!item.coords || item.coords.length < 2) return;
-
         const icon = POI_ICONS[item.layer_type] || '📍';
         const labelText = item.layer_type.replace(/_/g, ' ');
         const html = `
@@ -1004,5 +1027,12 @@ function transformFacilities(facilities) {
 
     const pointItems = pointFacilities.filter(f => f.coords && f.layer_type !== 'classroom'); 
 
-    return { buildingItems, pointItems };
+    const sharedConnectorAreas = pointFacilities
+        .filter(f => f.details && Array.isArray(f.details.connector_polygon) && f.details.connector_polygon.length >= 3)
+        .map(f => ({
+            name: f.name,
+            coords: f.details.connector_polygon
+        }));
+
+    return { buildingItems, pointItems, sharedConnectorAreas };
 }
