@@ -3,8 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 import sqlite3, os, asyncio, json
+import urllib.request
+import urllib.error
 from datetime import datetime, timedelta, timezone
-from typing import Any, Dict, List, Coroutine
+from typing import Any, Dict, List, Coroutine, cast
 from dotenv import load_dotenv
 from loguru import logger
 from init_db import init_db
@@ -14,6 +16,8 @@ APITITLE:str | None = os.getenv("APITITLE")
 VERSION:str | None = os.getenv("VERSION")
 DB_NAME:str | None = os.getenv("DB_NAME")
 RUNTIME:str | None = os.getenv("RUNTIME")
+CHATGPT_API_KEY:str | None = os.getenv("CHATGPT_API_KEY") or os.getenv("OPENAI_API_KEY")
+CHATGPT_MODEL:str = os.getenv("CHATGPT_MODEL", "gpt-4o-mini")
 raw_origins = os.getenv("CORS_ORIGINS", "")
 origins = [origin.strip() for origin in raw_origins.split(",") if origin.strip()]
 
@@ -84,6 +88,14 @@ class HeatmapTimelineResponse(BaseModel):
     meta: HeatmapTimelineMeta
     frames: List[HeatmapTimelineFrame]
 
+class AssistantQueryRequest(BaseModel):
+    question: str = Field(..., min_length=3, max_length=1000)
+
+class AssistantQueryResponse(BaseModel):
+    answer: str
+    model: str
+    context: Dict[str, Any]
+
 # Helper Function 
 def calculate_heat_weight(signal_strength: int, ping_ms: float, bandwidth: float) -> float:
     signal_score = (signal_strength / 5) * 0.3
@@ -115,6 +127,150 @@ def floor_datetime_to_bucket(dt: datetime, bucket_minutes: int) -> datetime:
 
 def format_utc_iso(dt: datetime) -> str:
     return dt.astimezone(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00', 'Z')
+
+def build_assistant_context(limit_classrooms: int = 120, limit_wifi_points: int = 60) -> Dict[str, Any]:
+    if not DB_NAME:
+        raise ValueError("Database invalid.")
+
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        SELECT name, building, floor, details
+        FROM campus_pois
+        WHERE layer_type = 'classroom'
+        ORDER BY name ASC
+        LIMIT ?
+        """,
+        (limit_classrooms,)
+    )
+    classroom_rows = cursor.fetchall()
+
+    classrooms: List[Dict[str, Any]] = []
+    for row in classroom_rows:
+        loaded_details: Any = json.loads(row[3]) if row[3] else {}
+        details: Dict[str, Any] = cast(Dict[str, Any], loaded_details) if isinstance(loaded_details, dict) else cast(Dict[str, Any], {})
+        classrooms.append({
+            "name": row[0],
+            "building": row[1],
+            "floor": row[2],
+            "capacity": details.get("capacity"),
+            "equipment": details.get("equipment", []),
+            "podium_type": details.get("podium_type"),
+            "desk_type": details.get("desk_type"),
+        })
+
+    cursor.execute(
+        """
+        SELECT coords,
+               AVG(signal_strength) AS avg_signal,
+               AVG(ping_ms) AS avg_ping,
+               AVG(bandwidth) AS avg_bandwidth,
+               COUNT(*) AS samples
+        FROM wifi_measurements
+        WHERE timestamp >= datetime('now', '-72 hours')
+        GROUP BY coords
+        ORDER BY avg_signal DESC, avg_bandwidth DESC
+        LIMIT ?
+        """,
+        (limit_wifi_points,)
+    )
+    wifi_rows = cursor.fetchall()
+    conn.close()
+
+    wifi_summary: List[Dict[str, Any]] = []
+    for row in wifi_rows:
+        loaded_coords: Any = json.loads(row[0]) if row[0] else []
+        coords_list: List[Any] = cast(List[Any], loaded_coords) if isinstance(loaded_coords, list) else cast(List[Any], [])
+        coords = [float(c) for c in coords_list[:2]] if len(coords_list) >= 2 else []
+        signal = float(row[1] or 0.0)
+        ping = float(row[2] or 0.0)
+        bandwidth = float(row[3] or 0.0)
+        weight = calculate_heat_weight(int(round(signal or 0.0)), ping, bandwidth)
+        wifi_summary.append({
+            "coords": coords,
+            "avg_signal_strength": round(signal, 2),
+            "avg_ping_ms": round(ping, 2),
+            "avg_bandwidth": round(bandwidth, 2),
+            "samples": int(row[4] or 0),
+            "weight": weight,
+        })
+
+    return {
+        "classrooms": classrooms,
+        "wifi_summary": wifi_summary,
+        "source": {
+            "classroom_count": len(classrooms),
+            "wifi_point_count": len(wifi_summary),
+            "window_hours": 72,
+        },
+    }
+
+def call_chatgpt_api(question: str, context: Dict[str, Any]) -> str:
+    if not CHATGPT_API_KEY:
+        raise HTTPException(
+            status_code=503,
+            detail="CHATGPT_API_KEY is not configured. Set it in .env before using /api/assistant/chat"
+        )
+
+    system_prompt = (
+        "You are an assistant for SFC campus navigation and study planning. "
+        "Use ONLY the provided context to answer. "
+        "Prioritize recommendations by wifi quality and classroom equipment fit. "
+        "If context is insufficient, explicitly say what is missing."
+    )
+    user_prompt = (
+        f"User question:\n{question}\n\n"
+        "Context JSON:\n"
+        f"{json.dumps(context, ensure_ascii=False)}"
+    )
+
+    payload: Dict[str, Any] = {
+        "model": CHATGPT_MODEL,
+        "temperature": 0.2,
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ],
+    }
+
+    req = urllib.request.Request(
+        url="https://api.openai.com/v1/chat/completions",
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {CHATGPT_API_KEY}",
+        },
+        method="POST",
+    )
+
+    try:
+        with urllib.request.urlopen(req, timeout=25) as response:
+            body = response.read().decode("utf-8")
+        parsed_raw: Any = json.loads(body)
+        parsed: Dict[str, Any] = cast(Dict[str, Any], parsed_raw) if isinstance(parsed_raw, dict) else cast(Dict[str, Any], {})
+        choices_any: Any = parsed.get("choices", [])
+        choices: List[Any] = cast(List[Any], choices_any) if isinstance(choices_any, list) else cast(List[Any], [])
+        if not choices:
+            raise HTTPException(status_code=502, detail="ChatGPT response did not include choices")
+        first_choice: Dict[str, Any] = cast(Dict[str, Any], choices[0]) if isinstance(choices[0], dict) else cast(Dict[str, Any], {})
+        message_any: Any = first_choice.get("message", {})
+        message_dict: Dict[str, Any] = cast(Dict[str, Any], message_any if isinstance(message_any, dict) else {})
+        content_value = message_dict.get("content", "")
+        content = str(content_value).strip()
+        if not content:
+            raise HTTPException(status_code=502, detail="ChatGPT response content is empty")
+        return content
+    except HTTPException:
+        raise
+    except urllib.error.HTTPError as e:
+        detail = e.read().decode("utf-8", errors="ignore") if hasattr(e, "read") else str(e)
+        logger.error(f"ChatGPT API HTTP error: {e.code} {detail}")
+        raise HTTPException(status_code=502, detail="ChatGPT API call failed")
+    except Exception as e:
+        logger.error(f"ChatGPT API error: {str(e)}")
+        raise HTTPException(status_code=502, detail="ChatGPT API request failed")
 
 class ConnectionManager():
     def __init__(self):
@@ -458,4 +614,19 @@ async def get_layer_items(layerType: str):
 @app.get("/api/health")
 async def heart_beat():
     return {"status": "ok", "message": "NetSFC Server is running"}
+
+@app.post("/api/assistant/chat", response_model=AssistantQueryResponse)
+async def assistant_chat(request: AssistantQueryRequest) -> AssistantQueryResponse:
+    question = request.question.strip()
+    if len(question) < 3:
+        raise HTTPException(status_code=400, detail="Question is too short")
+
+    context = build_assistant_context()
+    answer = await asyncio.to_thread(call_chatgpt_api, question, context)
+
+    return AssistantQueryResponse(
+        answer=answer,
+        model=CHATGPT_MODEL,
+        context=context.get("source", {}),
+    )
 

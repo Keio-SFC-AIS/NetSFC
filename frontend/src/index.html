@@ -788,9 +788,106 @@
       }
     }
 
+    .heatmap-timeline {
+      position: absolute;
+      left: 50%;
+      bottom: 20px;
+      transform: translateX(-50%);
+      width: min(560px, calc(100vw - 32px));
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      border-radius: 14px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.16);
+      padding: 10px 16px 12px 16px;
+      z-index: 15;
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .heatmap-timeline.visible {
+      display: flex;
+    }
+    .heatmap-timeline-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #3c4043;
+    }
+    .heatmap-timeline-title {
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .heatmap-timeline-title .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #9aa0a6;
+      display: inline-block;
+    }
+    .heatmap-timeline.live .heatmap-timeline-title .dot {
+      background: #ef4444;
+      box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6);
+      animation: heatmap-live-pulse 2s infinite;
+    }
+    @keyframes heatmap-live-pulse {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+      70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+    #heatmap-timeline-label {
+      color: #5f6368;
+      font-variant-numeric: tabular-nums;
+    }
+    .heatmap-timeline-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .heatmap-timeline-btn {
+      flex-shrink: 0;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 1.5px solid #dadce0;
+      background: white;
+      font-size: 13px;
+      color: #3c4043;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+    .heatmap-timeline-btn:hover {
+      border-color: #1a73e8;
+      color: #1a73e8;
+    }
+    #heatmap-timeline-live-btn {
+      flex-shrink: 0;
+      border-radius: 20px;
+      width: auto;
+      padding: 0 12px;
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+    .heatmap-timeline.live #heatmap-timeline-live-btn {
+      background: #1a73e8;
+      border-color: #1a73e8;
+      color: white;
+    }
+    #heatmap-timeline-slider {
+      flex: 1;
+      accent-color: #1a73e8;
+      cursor: pointer;
+    }
+
     @media (max-width: 600px) {
-      .floating-title { 
-        max-width: 180px; 
+      .floating-title {
+        max-width: 180px;
       }
       .category-chips-bar {
         top: 68px;
@@ -852,7 +949,7 @@
 <div id="map"></div>
 
 <div class="floating-title">
-  <h1>SFC Heatmap</h1>
+  <h1>NetSFC Map</h1>
   <a href="homepage.html">Back to measurement page</a>
 </div>
 
@@ -895,6 +992,18 @@
 </div>
 
 <button id="locate-btn" class="locate-btn" title="Re-center on my location">🎯</button>
+
+<div id="heatmap-timeline" class="heatmap-timeline">
+  <div class="heatmap-timeline-header">
+    <span class="heatmap-timeline-title"><span class="dot"></span>Wi-Fi Heatmap Timeline</span>
+    <span id="heatmap-timeline-label">Live</span>
+  </div>
+  <div class="heatmap-timeline-controls">
+    <button id="heatmap-timeline-play-btn" class="heatmap-timeline-btn" title="Play through history">▶</button>
+    <input type="range" id="heatmap-timeline-slider" min="0" max="0" value="0" step="1" />
+    <button id="heatmap-timeline-live-btn" class="heatmap-timeline-btn" title="Jump to live data">● LIVE</button>
+  </div>
+</div>
 
 <div id="building-panel" class="building-panel">
   <div class="gm-panel-header">

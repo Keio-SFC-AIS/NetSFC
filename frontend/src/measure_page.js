@@ -44,6 +44,10 @@ function getLocation() {
 function success(position) {
     const { latitude, longitude, accuracy } = position.coords;
 
+    localStorage.setItem('latitude', latitude);
+    localStorage.setItem('longitude', longitude);
+    localStorage.setItem('accuracy', accuracy);
+
     document.getElementById('lat').textContent      = latitude.toFixed(6) + '°';
     document.getElementById('long').textContent     = longitude.toFixed(6) + '°';
     document.getElementById('accuracy').textContent = '±' + Math.round(accuracy) + ' m';
@@ -59,10 +63,7 @@ function success(position) {
 
         document.getElementById('heatmap-link').style.display = 'inline-flex';
         document.getElementById('bounds-status').textContent = 'You are in SFC Campus.';
-
-        localStorage.setItem('latitude', latitude);
-        localStorage.setItem('longitude', longitude);
-        localStorage.setItem('accuracy', accuracy); 
+        localStorage.setItem('is_outside_campus', 'false');
 
         if (networkButton) {
             networkButton.style.display = 'inline-block';
@@ -70,21 +71,24 @@ function success(position) {
     }
 
     else {
-        setStatus('Location acquired', 'success')
+        setStatus('Location acquired (outside SFC). Demo mode will use SFC coordinates for map testing.', 'success');
+        document.getElementById('heatmap-link').style.display = 'inline-flex';
+        document.getElementById('bounds-status').textContent = 'You are outside SFC Campus. Network test will send simulated SFC coordinates.';
+        localStorage.setItem('is_outside_campus', 'true');
 
-        document.getElementById('heatmap-link').style.display = 'none';
-        document.getElementById('bounds-status').textContent = 'Map access denied: You must be on SFC Campus to access the map.';
+        // document.getElementById('heatmap-link').style.display = 'none';
+        // document.getElementById('bounds-status').textContent = 'Map access denied: You must be on SFC Campus to access the map.';
 
-        if (networkButton) {
-            networkButton.style.display = 'none';
-        }
-        if (networkStatus) {
-            networkStatus.textContent = 'Latency test restricted: You must be on SFC Campus to measure network speed.';
-            networkStatus.style.color = '#c0392b'; 
-        }
-        if (networkResult) {
-            networkResult.textContent = '';
-        }
+        // if (networkButton) {
+        //     networkButton.style.display = 'none';
+        // }
+        // if (networkStatus) {
+        //     networkStatus.textContent = 'Latency test restricted: You must be on SFC Campus to measure network speed.';
+        //     networkStatus.style.color = '#c0392b'; 
+        // }
+        // if (networkResult) {
+        //     networkResult.textContent = '';
+        // }
     }
 }
 

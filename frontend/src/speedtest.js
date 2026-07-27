@@ -1,5 +1,42 @@
 // Latency Checker by using fetch, calculates with package send time and response time
 const API_HOST = window.ENV.API_HOST;
+const CAMPUS_BOUNDS = {
+    minLat: 35.384,
+    minLng: 139.424,
+    maxLat: 35.393,
+    maxLng: 139.433,
+};
+
+function randomCampusCoords() {
+    const lat = CAMPUS_BOUNDS.minLat + Math.random() * (CAMPUS_BOUNDS.maxLat - CAMPUS_BOUNDS.minLat);
+    const lng = CAMPUS_BOUNDS.minLng + Math.random() * (CAMPUS_BOUNDS.maxLng - CAMPUS_BOUNDS.minLng);
+    return [Number(lat.toFixed(7)), Number(lng.toFixed(7))];
+}
+
+function resolveTestCoords() {
+    const latitude = localStorage.getItem('latitude');
+    const longitude = localStorage.getItem('longitude');
+    const isOutsideCampus = localStorage.getItem('is_outside_campus') === 'true';
+
+    if (!latitude || !longitude) {
+        return null;
+    }
+
+    if (isOutsideCampus) {
+        const [demoLat, demoLng] = randomCampusCoords();
+        return {
+            latitude: String(demoLat),
+            longitude: String(demoLng),
+            mode: 'demo',
+        };
+    }
+
+    return {
+        latitude,
+        longitude,
+        mode: 'live',
+    };
+}
 
 async function measureLatency() {
     const t1 = Date.now();
@@ -82,16 +119,18 @@ async function checkNetwork() {
     const status = document.getElementById('network_status');
     const result = document.getElementById('network_result');
 
-    const latitude = localStorage.getItem('latitude');
-    const longitude = localStorage.getItem('longitude');
+    const resolvedCoords = resolveTestCoords();
     const accuracy = localStorage.getItem('accuracy');
 
-    if (!latitude || !longitude) {
+    if (!resolvedCoords) {
         status.textContent = 'Location must be measured first to measure network';
         status.style.color = '#c0392b';
         result.textContent = '';
         return;
     }
+
+    const latitude = resolvedCoords.latitude;
+    const longitude = resolvedCoords.longitude;
 
     button.disabled = true;
     result.textContent = '';
@@ -103,6 +142,11 @@ async function checkNetwork() {
 
     status.textContent = 'Measuring Latency...';
     try {
+        if (resolvedCoords.mode === 'demo') {
+            result.textContent = `Demo mode: submitting simulated SFC coords (${latitude}, ${longitude})`;
+            result.style.color = '#5f6368';
+        }
+
         ping_ms = await measureLatency();
 
         const latencyResponse = await sendLatency(latitude, longitude, accuracy, ping_ms);
