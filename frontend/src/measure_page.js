@@ -41,13 +41,15 @@ function getLocation() {
     navigator.geolocation.getCurrentPosition(success, errorResult, GEO_OPTIONS);
 }
 
-function success(position) {
-    const { latitude, longitude, accuracy } = position.coords;
+function applyResolvedLocation(latitude, longitude, accuracy, statusMessage) {
+    localStorage.setItem('latitude', latitude);
+    localStorage.setItem('longitude', longitude);
+    localStorage.setItem('accuracy', accuracy);
 
     document.getElementById('lat').textContent      = latitude.toFixed(6) + '°';
     document.getElementById('long').textContent     = longitude.toFixed(6) + '°';
     document.getElementById('accuracy').textContent = '±' + Math.round(accuracy) + ' m';
-    document.getElementById('status').textContent   = 'Location acquired.';
+    document.getElementById('status').textContent   = statusMessage || 'Location acquired.';
     document.getElementById('button_locate').disabled = false;
 
     const networkButton = document.getElementById('button_network');
@@ -55,14 +57,11 @@ function success(position) {
     const networkResult = document.getElementById('network_result');
 
     if (boundCheck(latitude, longitude)) {
-        setStatus('Location acquired.', 'success');
+        setStatus(statusMessage || 'Location acquired.', 'success');
 
         document.getElementById('heatmap-link').style.display = 'inline-flex';
         document.getElementById('bounds-status').textContent = 'You are in SFC Campus.';
-
-        localStorage.setItem('latitude', latitude);
-        localStorage.setItem('longitude', longitude);
-        localStorage.setItem('accuracy', accuracy); 
+        localStorage.setItem('is_outside_campus', 'false');
 
         if (networkButton) {
             networkButton.style.display = 'inline-block';
@@ -70,22 +69,52 @@ function success(position) {
     }
 
     else {
-        setStatus('Location acquired', 'success')
+        setStatus(statusMessage || 'Location acquired (outside SFC). Demo mode will use SFC coordinates for map testing.', 'success');
+        document.getElementById('heatmap-link').style.display = 'inline-flex';
+        document.getElementById('bounds-status').textContent = 'You are outside SFC Campus. Network test will send simulated SFC coordinates.';
+        localStorage.setItem('is_outside_campus', 'true');
 
-        document.getElementById('heatmap-link').style.display = 'none';
-        document.getElementById('bounds-status').textContent = 'Map access denied: You must be on SFC Campus to access the map.';
+        // document.getElementById('heatmap-link').style.display = 'none';
+        // document.getElementById('bounds-status').textContent = 'Map access denied: You must be on SFC Campus to access the map.';
 
-        if (networkButton) {
-            networkButton.style.display = 'none';
-        }
-        if (networkStatus) {
-            networkStatus.textContent = 'Latency test restricted: You must be on SFC Campus to measure network speed.';
-            networkStatus.style.color = '#c0392b'; 
-        }
-        if (networkResult) {
-            networkResult.textContent = '';
-        }
+        // if (networkButton) {
+        //     networkButton.style.display = 'none';
+        // }
+        // if (networkStatus) {
+        //     networkStatus.textContent = 'Latency test restricted: You must be on SFC Campus to measure network speed.';
+        //     networkStatus.style.color = '#c0392b';
+        // }
+        // if (networkResult) {
+        //     networkResult.textContent = '';
+        // }
     }
+}
+
+function success(position) {
+    const { latitude, longitude, accuracy } = position.coords;
+    applyResolvedLocation(latitude, longitude, accuracy);
+}
+
+function useManualCoords() {
+    const latInput = document.getElementById('manual-lat');
+    const lngInput = document.getElementById('manual-lng');
+    const manualStatus = document.getElementById('manual-coords-status');
+
+    const lat = parseFloat(latInput.value);
+    const lng = parseFloat(lngInput.value);
+
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+        manualStatus.textContent = 'Enter valid numeric latitude and longitude.';
+        manualStatus.className = 'error';
+        return;
+    }
+
+    applyResolvedLocation(lat, lng, 3, 'Using manually entered coordinates.');
+
+    manualStatus.textContent = boundCheck(lat, lng)
+        ? 'Manual coordinates applied (inside SFC bounds) - network tests will use this exact point.'
+        : 'Manual coordinates applied, but they are outside SFC bounds - network tests will fall back to demo mode instead.';
+    manualStatus.className = 'success';
 }
 
 function errorResult(error) {
@@ -101,3 +130,10 @@ function errorResult(error) {
 }
 
 window.getLocation = getLocation;
+
+document.addEventListener('DOMContentLoaded', () => {
+    const manualBtn = document.getElementById('button_manual_coords');
+    if (manualBtn) {
+        manualBtn.addEventListener('click', useManualCoords);
+    }
+});

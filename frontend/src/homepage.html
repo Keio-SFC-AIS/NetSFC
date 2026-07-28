@@ -103,6 +103,55 @@
       background: #4f8ef7;
       color: #fff;
     }
+
+    /* Developer Tools (manual coordinate override) */
+    details.dev-tools {
+      margin-top: 20px;
+      padding: 10px 12px;
+      border: 1px dashed #c7c7c7;
+      border-radius: 8px;
+      background: #fafafa;
+    }
+    details.dev-tools summary {
+      font-size: 13px;
+      font-weight: 600;
+      color: #555;
+      cursor: pointer;
+    }
+    details.dev-tools summary:hover { color: #4f8ef7; }
+    .manual-coords-row {
+      display: flex;
+      gap: 12px;
+      margin: 8px 0;
+      flex-wrap: wrap;
+    }
+    .manual-coords-row label {
+      font-size: 12.5px;
+      color: #555;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .manual-coords-row input {
+      padding: 6px 8px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 13px;
+      width: 140px;
+    }
+    #button_manual_coords {
+      padding: 7px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      background: #fff;
+      color: #555;
+      border: 1.5px solid #999;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    #button_manual_coords:hover { background: #555; color: #fff; }
+    #manual-coords-status.success { color: #2e7d52; }
+    #manual-coords-status.error { color: #c0392b; }
   </style>
 </head>
 <body>
@@ -118,14 +167,33 @@
 <p>Accuracy: <span id="accuracy">—</span></p>
 <p>Status: <span id="status">Press the button to get your location.</span></p>
 
+<details class="dev-tools">
+  <summary>Developer Tools — manual coordinates (for off-campus testing)</summary>
+  <p style="font-size:13px; color:#555; margin:8px 0 6px;">
+    SFC bounds: lat 35.384–35.393, lng 139.424–139.433. Enter a point inside
+    this range to submit real (non-demo) measurements tagged at that campus
+    location while testing off-campus.
+  </p>
+  <div class="manual-coords-row">
+    <label>Latitude
+      <input type="number" id="manual-lat" step="0.0000001" placeholder="35.388228">
+    </label>
+    <label>Longitude
+      <input type="number" id="manual-lng" step="0.0000001" placeholder="139.427076">
+    </label>
+  </div>
+  <button id="button_manual_coords" type="button">Use these coordinates</button>
+  <p id="manual-coords-status" style="font-size:13px; margin-top:6px;"></p>
+</details>
+
 <h2>Network Speed Test</h2>
-<button id="button_network" type="button" style="display: none;">Run Network Test</button>
+<button id="button_network" type="button" style="">Run Network Test</button>
 <p id="network_status" style="font-size:13px; color:#555; margin-top:6px;"></p>
 <p id="network_result" style="font-size:13px; font-weight:500; margin-top:2px;"></p>
 
 <h2>Location Heatmap</h2> 
 
-<a class="heatmap-link" id="heatmap-link" href="index.html" style="display: none;"> View Map</a>
+<a class="heatmap-link" id="heatmap-link" href="index.html" style=""> View Map</a>
 <p id="bounds-status" style="font-size:13px; color:#555;"></p>
 
 <script src="config.js" defer></script>

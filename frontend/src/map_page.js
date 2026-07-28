@@ -1,9 +1,7 @@
-// Generates a heatmap with zoom/pan support
-// Should be able to show user location and display POI items directly on the map
 import { boundCheck } from './measure_page.js';
 
 const MAP_CONFIG = {
-    center: [35.388228020107945, 139.42707616563885], // default center, SFC campus
+    center: [35.388228020107945, 139.42707616563885],
     zoom: 18.5,
     minZoom: 10,
     maxZoom: 22,
@@ -68,10 +66,34 @@ const DETAIL_PANEL_WIDTH = 380;
 const DETAIL_PANEL_GAP = 16;
 const MEDIUM_LAYOUT_BREAKPOINT = 1100;
 const MOBILE_LAYOUT_BREAKPOINT = 600;
+const HEATMAP_DEFAULT_LOOKBACK_HOURS = 168;
+const HEATMAP_DEFAULT_LIMIT = 10000;
+const HEATMAP_MAX_POINTS = 12000;
+const HEATMAP_WS_RECONNECT_MS = 2000;
+const HEATMAP_WS_PING_MS = 25000;
+// Zoom level at which heat points render at full intensity. leaflet.heat fades
+// points out the further the current zoom is from this value, so it should sit
+// near the map's everyday viewing zoom (MAP_CONFIG.zoom), not the map's maxZoom -
+// using maxZoom (22) here crushed intensity to ~6% opacity at the default zoom.
+const HEATMAP_INTENSITY_REFERENCE_ZOOM = 17;
+const HEATMAP_TIMELINE_LOOKBACK_HOURS = 6;
+const HEATMAP_TIMELINE_BUCKET_MINUTES = 15;
+const HEATMAP_TIMELINE_REFRESH_MS = 60000;
+const HEATMAP_TIMELINE_PLAY_INTERVAL_MS = 900;
 
 let map;
 let heatLayer;
+let baseTileLayer;
 let heatPoints = [];
+let heatmapSocket = null;
+let heatmapWsRetryTimer = null;
+let heatmapWsPingTimer = null;
+let layerControl = null;
+let timelineFrames = [];
+let timelineIsLive = true;
+let timelinePlayTimer = null;
+let timelineRefreshTimer = null;
+let timelineEls = null;
 let buildingAliasLayerGroup = null;
 let buildingAliasMarkers = [];
 let buildingAmenityLayerGroup = null;
@@ -84,9 +106,9 @@ let userAccuracyCircle = null;
 let currentUserLatLng = null;
 let isFirstLocation = true;
 
-let allPointFacilities = []; // Holds point items until building is called
-let itemLayerGroup = null; // Tracks shown items on map
-let categoryFilterLayerGroup = null; // Layer for global category filters (e.g., water fountains)
+let allPointFacilities = []; 
+let itemLayerGroup = null; 
+let categoryFilterLayerGroup = null; 
 
 let currentBuildingFloors = [];
 let currentFloorItems = [];  
@@ -120,11 +142,19 @@ window.onload = function() {
         inertiaMaxSpeed: 1500,
     });
 
+    const norotateContainer = map.getPane('norotatePane') || map.getContainer();
+    let heatmapPane = map.getPane('heatmapPane');
+    if (!heatmapPane) {
+        heatmapPane = map.createPane('heatmapPane', norotateContainer);
+    }
+    heatmapPane.style.zIndex = 450;
+    heatmapPane.style.pointerEvents = 'none';
+
     L.control.zoom({
         position: 'bottomright'
     }).addTo(map);
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
+    baseTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
         attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         maxZoom: MAP_CONFIG.maxZoom,
         maxNativeZoom: 19,
@@ -134,11 +164,91 @@ window.onload = function() {
     }).addTo(map);
 
     heatLayer = L.heatLayer(heatPoints, {
+        pane: 'heatmapPane',
         radius: 35,
         blur: 25,
-        maxZoom: MAP_CONFIG.maxZoom,
-        gradient: { 0.4: 'blue', 0.7: 'orange', 1.0: 'red' }
-    }).addTo(map);
+        maxZoom: HEATMAP_INTENSITY_REFERENCE_ZOOM,
+        minOpacity: 0.3,
+        gradient: {
+            0.1: '#9ca3af',
+            0.55: '#f59e0b',
+            1.0: '#ef4444'
+        }
+    });
+
+    // leaflet.heat@0.2.0 hardcodes overlayPane in onAdd/onRemove and ignores the
+    // `pane` option entirely, so without this override the canvas lands inside
+    // leaflet-rotate's rotated pane and every point renders in the wrong place.
+    heatLayer.onAdd = function (targetMap) {
+        this._map = targetMap;
+        if (!this._canvas) this._initCanvas();
+        const targetPane = targetMap.getPane(this.options.pane) || targetMap.getPane('overlayPane');
+        targetPane.appendChild(this._canvas);
+        targetMap.on('moveend', this._reset, this);
+        if (targetMap.options.zoomAnimation && L.Browser.any3d) {
+            targetMap.on('zoomanim', this._animateZoom, this);
+        }
+        this._reset();
+    };
+
+    heatLayer.onRemove = function (targetMap) {
+        const targetPane = targetMap.getPane(this.options.pane) || targetMap.getPane('overlayPane');
+        if (targetPane && this._canvas && this._canvas.parentNode === targetPane) {
+            targetPane.removeChild(this._canvas);
+        }
+        targetMap.off('moveend', this._reset, this);
+        if (targetMap.options.zoomAnimation) {
+            targetMap.off('zoomanim', this._animateZoom, this);
+        }
+    };
+
+    // setLatLngs()/addLatLng() (unmodified plugin methods, used by applyHeatLayerPoints)
+    // schedule _redraw via requestAnimationFrame instead of calling it synchronously.
+    // If the layer is removed from the map (e.g. the timeline switches back to live
+    // right as the heatmap gets toggled off) before that frame fires, Map.removeLayer
+    // has already set this._map to null by then, and the plugin's own _redraw has no
+    // guard for that - it crashes on this._map.getSize(). Wrap it with the same guard
+    // _reset uses above.
+    const pluginRedraw = heatLayer._redraw;
+    heatLayer._redraw = function () {
+        if (!this._map) return;
+        pluginRedraw.call(this);
+    };
+
+    heatLayer._reset = function () {
+        if (!this._map) return;
+        // heatmapPane only inherits the map pane's own pan translate (no rotation).
+        // `containerPointToLayerPoint` is unreliable here because leaflet-rotate
+        // patches it to also fold in the bearing rotation, which doesn't apply to
+        // this unrotated pane and produced wildly wrong offsets. `_getMapPanePos()`
+        // reads the map pane's raw translate directly, so negating it reliably
+        // cancels the outer offset regardless of bearing. Hardcoding position to
+        // (0,0) (the previous approach) left the canvas shifted by that pan
+        // offset, which is why the heat never appeared on screen.
+        L.DomUtil.setPosition(this._canvas, this._map._getMapPanePos().multiplyBy(-1));
+
+        var size = this._map.getSize();
+        if (this._heat._width !== size.x) {
+            this._canvas.width = this._heat._width = size.x;
+        }
+        if (this._heat._height !== size.y) {
+            this._canvas.height = this._heat._height = size.y;
+        }
+
+        this._redraw();
+    };
+
+    // The plugin's built-in zoom-anim transform assumes the rotated overlayPane;
+    // skip it and let the full _reset() from the listener below take over instead.
+    heatLayer._animateZoom = function () {};
+
+    heatLayer.addTo(map);
+
+    map.on('move rotate zoom resetview', () => {
+        if (heatLayer && heatLayer._map) {
+            heatLayer._reset();
+        }
+    });
 
     map.on('zoomend', () => {
         updateLabelVisibility();
@@ -153,8 +263,364 @@ window.onload = function() {
     initCategoryChips();
     initClassroomPanel();
     initItemPanel();
+    initHeatmapLayerControls();
+    initHeatmapSettingsToggle();
+    initHeatmapTimelineControls();
+    initAssistantPanel();
+    loadHeatmapSnapshot();
+    connectHeatmapWebSocket();
     window.addEventListener('resize', updateDetailPanelPositions);
+    window.addEventListener('beforeunload', () => {
+        teardownHeatmapWebSocket();
+        stopTimelinePlayback();
+        if (timelineRefreshTimer) clearInterval(timelineRefreshTimer);
+    });
 };
+
+function initHeatmapLayerControls() {
+    if (!map || !heatLayer || !baseTileLayer) return;
+    if (layerControl) {
+        map.removeControl(layerControl);
+    }
+
+    layerControl = L.control.layers(
+        { 'Campus Map': baseTileLayer },
+        { Heatmap: heatLayer },
+        { position: 'bottomright', collapsed: true }
+    ).addTo(map);
+
+    map.on('overlayadd', (event) => {
+        if (event.layer !== heatLayer) return;
+        syncHeatmapSettingCheckbox(true);
+        showHeatmapTimeline();
+    });
+
+    map.on('overlayremove', (event) => {
+        if (event.layer !== heatLayer) return;
+        syncHeatmapSettingCheckbox(false);
+        hideHeatmapTimeline();
+    });
+}
+
+function initHeatmapSettingsToggle() {
+    const heatmapSetting = document.getElementById('setting-heatmap');
+    if (!heatmapSetting) return;
+
+    heatmapSetting.checked = map.hasLayer(heatLayer);
+    heatmapSetting.addEventListener('change', () => {
+        toggleHeatmapLayer(heatmapSetting.checked);
+    });
+}
+
+function syncHeatmapSettingCheckbox(isOn) {
+    const heatmapSetting = document.getElementById('setting-heatmap');
+    if (!heatmapSetting) return;
+    heatmapSetting.checked = isOn;
+}
+
+function toggleHeatmapLayer(shouldShow) {
+    if (!map || !heatLayer) return;
+    if (shouldShow && !map.hasLayer(heatLayer)) {
+        heatLayer.addTo(map);
+    } else if (!shouldShow && map.hasLayer(heatLayer)) {
+        map.removeLayer(heatLayer);
+    }
+}
+
+function toWsUrl(apiHost) {
+    const sanitized = (apiHost || '').replace(/\/$/, '');
+    if (sanitized.startsWith('https://')) return sanitized.replace('https://', 'wss://');
+    if (sanitized.startsWith('http://')) return sanitized.replace('http://', 'ws://');
+    return `ws://${sanitized}`;
+}
+
+function normalizeHeatmapPoint(point) {
+    if (!point || !Array.isArray(point.coords) || point.coords.length !== 2) return null;
+    const lat = Number(point.coords[0]);
+    const lng = Number(point.coords[1]);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+    const rawWeight = Number(point.weight);
+    const weight = Number.isFinite(rawWeight) ? Math.max(0, Math.min(1, rawWeight)) : 0.2;
+    return [lat, lng, weight];
+}
+
+function applyHeatLayerPoints(points) {
+    if (!heatLayer) return;
+    heatLayer.setLatLngs(points);
+    if (heatLayer._map) {
+        heatLayer._reset();
+    }
+}
+
+function renderHeatmapPoints(points) {
+    heatPoints = points.slice(-HEATMAP_MAX_POINTS);
+    if (timelineIsLive) {
+        applyHeatLayerPoints(heatPoints);
+    }
+}
+
+function addHeatmapPoint(pointData) {
+    const normalized = normalizeHeatmapPoint(pointData);
+    if (!normalized) return;
+    heatPoints.push(normalized);
+    if (heatPoints.length > HEATMAP_MAX_POINTS) {
+        heatPoints = heatPoints.slice(heatPoints.length - HEATMAP_MAX_POINTS);
+    }
+    if (timelineIsLive) {
+        applyHeatLayerPoints(heatPoints);
+    }
+}
+
+function updateTimelineLabel(frame) {
+    if (!timelineEls) return;
+    if (!frame) {
+        timelineEls.label.textContent = 'Live';
+        timelineEls.container.classList.add('live');
+        return;
+    }
+    timelineEls.container.classList.remove('live');
+    const frameDate = new Date(frame.frame_start_ts);
+    timelineEls.label.textContent = Number.isNaN(frameDate.getTime())
+        ? frame.frame_start_ts
+        : frameDate.toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
+function renderTimelineFrame(index) {
+    const frame = timelineFrames[index];
+    if (!frame) return;
+    const normalizedPoints = (frame.points || []).map(normalizeHeatmapPoint).filter(Boolean);
+    applyHeatLayerPoints(normalizedPoints);
+    updateTimelineLabel(frame);
+}
+
+function stopTimelinePlayback() {
+    if (timelinePlayTimer) {
+        clearInterval(timelinePlayTimer);
+        timelinePlayTimer = null;
+    }
+    if (timelineEls) timelineEls.playBtn.textContent = '▶';
+}
+
+function jumpToLive() {
+    timelineIsLive = true;
+    stopTimelinePlayback();
+    if (timelineEls && timelineFrames.length > 0) {
+        timelineEls.slider.value = String(timelineFrames.length - 1);
+    }
+    updateTimelineLabel(null);
+    applyHeatLayerPoints(heatPoints);
+}
+
+function onHeatmapTimelineInput() {
+    if (!timelineEls || timelineFrames.length === 0) return;
+    const index = Number(timelineEls.slider.value);
+    if (index >= timelineFrames.length - 1) {
+        jumpToLive();
+        return;
+    }
+    stopTimelinePlayback();
+    timelineIsLive = false;
+    renderTimelineFrame(index);
+}
+
+function toggleTimelinePlayback() {
+    if (timelinePlayTimer) {
+        stopTimelinePlayback();
+        return;
+    }
+    if (!timelineEls || timelineFrames.length === 0) return;
+
+    timelineEls.playBtn.textContent = '⏸';
+    timelineIsLive = false;
+    let index = Number(timelineEls.slider.value);
+    if (index >= timelineFrames.length - 1) index = 0;
+    timelineEls.slider.value = String(index);
+    renderTimelineFrame(index);
+
+    timelinePlayTimer = setInterval(() => {
+        index += 1;
+        if (index >= timelineFrames.length) {
+            stopTimelinePlayback();
+            jumpToLive();
+            return;
+        }
+        timelineEls.slider.value = String(index);
+        renderTimelineFrame(index);
+    }, HEATMAP_TIMELINE_PLAY_INTERVAL_MS);
+}
+
+async function loadHeatmapTimeline(preserveFrameStartTs) {
+    if (!timelineEls) return;
+    const apiHost = window.ENV.API_HOST.replace(/\/$/, '');
+    const endDt = new Date();
+    const startDt = new Date(endDt.getTime() - HEATMAP_TIMELINE_LOOKBACK_HOURS * 60 * 60 * 1000);
+    const url = `${apiHost}/api/measurements/heatmap/timeline`
+        + `?start_ts=${encodeURIComponent(startDt.toISOString())}`
+        + `&end_ts=${encodeURIComponent(endDt.toISOString())}`
+        + `&bucket_minutes=${HEATMAP_TIMELINE_BUCKET_MINUTES}`;
+
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Heatmap timeline request failed: ${response.status}`);
+        }
+        const data = await response.json();
+        timelineFrames = Array.isArray(data.frames) ? data.frames : [];
+        timelineEls.slider.max = String(Math.max(0, timelineFrames.length - 1));
+
+        if (timelineFrames.length === 0) return;
+
+        if (timelineIsLive) {
+            timelineEls.slider.value = String(timelineFrames.length - 1);
+            return;
+        }
+
+        let targetIndex = timelineFrames.length - 1;
+        if (preserveFrameStartTs) {
+            const foundIndex = timelineFrames.findIndex(f => f.frame_start_ts === preserveFrameStartTs);
+            if (foundIndex === -1) {
+                jumpToLive();
+                return;
+            }
+            targetIndex = foundIndex;
+        }
+        timelineEls.slider.value = String(targetIndex);
+        renderTimelineFrame(targetIndex);
+    } catch (error) {
+        console.error('Failed to load heatmap timeline', error);
+    }
+}
+
+function showHeatmapTimeline() {
+    if (!timelineEls) return;
+    timelineEls.container.classList.add('visible');
+    loadHeatmapTimeline();
+
+    if (timelineRefreshTimer) clearInterval(timelineRefreshTimer);
+    timelineRefreshTimer = setInterval(() => {
+        const selectedFrame = (!timelineIsLive) ? timelineFrames[Number(timelineEls.slider.value)] : null;
+        loadHeatmapTimeline(selectedFrame ? selectedFrame.frame_start_ts : undefined);
+    }, HEATMAP_TIMELINE_REFRESH_MS);
+}
+
+function hideHeatmapTimeline() {
+    if (!timelineEls) return;
+    timelineEls.container.classList.remove('visible');
+    if (timelineRefreshTimer) {
+        clearInterval(timelineRefreshTimer);
+        timelineRefreshTimer = null;
+    }
+    stopTimelinePlayback();
+    jumpToLive();
+}
+
+function initHeatmapTimelineControls() {
+    const container = document.getElementById('heatmap-timeline');
+    const slider = document.getElementById('heatmap-timeline-slider');
+    const label = document.getElementById('heatmap-timeline-label');
+    const playBtn = document.getElementById('heatmap-timeline-play-btn');
+    const liveBtn = document.getElementById('heatmap-timeline-live-btn');
+    if (!container || !slider || !label || !playBtn || !liveBtn) return;
+
+    timelineEls = { container, slider, label, playBtn, liveBtn };
+
+    slider.addEventListener('input', onHeatmapTimelineInput);
+    playBtn.addEventListener('click', toggleTimelinePlayback);
+    liveBtn.addEventListener('click', jumpToLive);
+
+    updateTimelineLabel(null);
+
+    if (map.hasLayer(heatLayer)) {
+        showHeatmapTimeline();
+    }
+}
+
+async function loadHeatmapSnapshot() {
+    const apiHost = window.ENV.API_HOST.replace(/\/$/, '');
+    const url = `${apiHost}/api/measurements/heatmap?lookback_hours=${HEATMAP_DEFAULT_LOOKBACK_HOURS}&limit=${HEATMAP_DEFAULT_LIMIT}`;
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Heatmap snapshot request failed: ${response.status}`);
+        }
+        const data = await response.json();
+        if (!Array.isArray(data)) {
+            throw new Error('Heatmap snapshot response is not an array');
+        }
+        const normalizedPoints = data
+            .map(normalizeHeatmapPoint)
+            .filter(Boolean);
+        renderHeatmapPoints(normalizedPoints);
+    } catch (error) {
+        console.error('Failed to load heatmap snapshot', error);
+    }
+}
+
+function teardownHeatmapWebSocket() {
+    if (heatmapWsRetryTimer) {
+        clearTimeout(heatmapWsRetryTimer);
+        heatmapWsRetryTimer = null;
+    }
+    if (heatmapWsPingTimer) {
+        clearInterval(heatmapWsPingTimer);
+        heatmapWsPingTimer = null;
+    }
+    if (heatmapSocket) {
+        heatmapSocket.onclose = null;
+        try {
+            heatmapSocket.close();
+        } catch (error) {
+            console.warn('Heatmap socket close error', error);
+        }
+        heatmapSocket = null;
+    }
+}
+
+function connectHeatmapWebSocket() {
+    teardownHeatmapWebSocket();
+    const apiHost = window.ENV.API_HOST.replace(/\/$/, '');
+    const wsUrl = `${toWsUrl(apiHost)}/ws/heatmap`;
+
+    try {
+        heatmapSocket = new WebSocket(wsUrl);
+    } catch (error) {
+        console.error('Failed to create heatmap WebSocket', error);
+        heatmapWsRetryTimer = setTimeout(connectHeatmapWebSocket, HEATMAP_WS_RECONNECT_MS);
+        return;
+    }
+
+    heatmapSocket.onopen = () => {
+        if (heatmapWsPingTimer) clearInterval(heatmapWsPingTimer);
+        heatmapWsPingTimer = setInterval(() => {
+            if (heatmapSocket && heatmapSocket.readyState === WebSocket.OPEN) {
+                heatmapSocket.send('ping');
+            }
+        }, HEATMAP_WS_PING_MS);
+    };
+
+    heatmapSocket.onmessage = (event) => {
+        try {
+            const message = JSON.parse(event.data);
+            if (message && message.type === 'NEW_MEASUREMENT' && message.data) {
+                addHeatmapPoint(message.data);
+            }
+        } catch (error) {
+            console.warn('Invalid heatmap WebSocket message', error);
+        }
+    };
+
+    heatmapSocket.onerror = (event) => {
+        console.warn('Heatmap WebSocket error', event);
+    };
+
+    heatmapSocket.onclose = () => {
+        if (heatmapWsPingTimer) {
+            clearInterval(heatmapWsPingTimer);
+            heatmapWsPingTimer = null;
+        }
+        heatmapWsRetryTimer = setTimeout(connectHeatmapWebSocket, HEATMAP_WS_RECONNECT_MS);
+    };
+}
 
 function loadPOIs() {
     const url = `${window.ENV.API_HOST}/api/pois`;
@@ -292,7 +758,6 @@ function placePOIs(items) {
             return;
         }
 
-        // Handle Items
         if (item.coords.length === 2 && typeof item.coords[0] === 'number' && typeof item.coords[1] === 'number') {
             const itemType = normalizeLayerType(item.layer_type);
             const icon = POI_ICONS[itemType] || '📍';
@@ -524,7 +989,6 @@ function getPolygonCentroid(coords) {
     return [total.lat / coords.length, total.lng / coords.length];
 }
 
-// Get user location
 function initGeolocation() {
     const locateBtn = document.getElementById('locate-btn');
 
@@ -541,7 +1005,6 @@ function initGeolocation() {
             currentUserLatLng = [lat, lng];
             if (locateBtn) locateBtn.classList.add('active');
 
-            // User Location Marker & Accuracy Circle
             if (userLocationMarker) {
                 userLocationMarker.setLatLng(currentUserLatLng);
             } else {
@@ -576,7 +1039,6 @@ function initGeolocation() {
                 }
             }
 
-            // Locate user on first location update if user is in the campus bounds
             if (isFirstLocation && boundCheck(currentUserLatLng[0], currentUserLatLng[1])) {
                 map.flyTo(currentUserLatLng, 18, { animate: true });
                 isFirstLocation = false;
@@ -604,7 +1066,6 @@ function initGeolocation() {
     }
 }
 
-// Category Filter Chips
 function initCategoryChips() {
     const chipBtns = document.querySelectorAll('.chip-btn');
 
@@ -754,7 +1215,6 @@ function showItemsForBuilding(buildingName, floorLabel = null) {
         itemLayerGroup = null;
     }
 
-    // No duplicate pins
     if (categoryFilterLayerGroup) {
         map.removeLayer(categoryFilterLayerGroup);
         categoryFilterLayerGroup = null;
@@ -1112,6 +1572,171 @@ function closeClassroomPanel() {
     unregisterDetailPanel('classroom-panel');
 }
 
+const ASSISTANT_HIGHLIGHT_DURATION_MS = 8000;
+let assistantHighlightMarker = null;
+let assistantHighlightTimer = null;
+
+function showAssistantHighlight(coords, label) {
+    if (!Array.isArray(coords) || coords.length !== 2) return;
+
+    if (assistantHighlightMarker) {
+        map.removeLayer(assistantHighlightMarker);
+        assistantHighlightMarker = null;
+    }
+    if (assistantHighlightTimer) {
+        clearTimeout(assistantHighlightTimer);
+        assistantHighlightTimer = null;
+    }
+
+    const icon = L.divIcon({
+        html: '<div class="assistant-highlight-pulse"></div><div class="assistant-highlight-dot"></div>',
+        className: 'assistant-highlight-marker',
+        iconSize: [28, 28],
+        iconAnchor: [14, 14],
+    });
+
+    assistantHighlightMarker = L.marker(coords, { icon, interactive: false, zIndexOffset: 3000 }).addTo(map);
+    if (label) {
+        assistantHighlightMarker
+            .bindTooltip(label, { permanent: true, direction: 'top', offset: [0, -14], className: 'poi-tooltip' })
+            .openTooltip();
+    }
+
+    assistantHighlightTimer = setTimeout(() => {
+        if (assistantHighlightMarker) {
+            map.removeLayer(assistantHighlightMarker);
+            assistantHighlightMarker = null;
+        }
+        assistantHighlightTimer = null;
+    }, ASSISTANT_HIGHLIGHT_DURATION_MS);
+}
+
+function flyToBuildingByName(buildingName) {
+    if (!buildingName) return;
+    const buildingPolygon = allRawFacilities.find(f =>
+        normalizeLayerType(f.layer_type) === 'polygon' &&
+        normalizeBuildingName(f.building) === normalizeBuildingName(buildingName)
+    );
+    if (!buildingPolygon || !Array.isArray(buildingPolygon.coords)) return;
+
+    const bounds = L.polygon(buildingPolygon.coords).getBounds();
+    map.flyToBounds(bounds, {
+        paddingTopLeft: [380, 44],
+        paddingBottomRight: [60, 110],
+        duration: 0.6,
+        maxZoom: 20
+    });
+}
+
+function focusAssistantPoi(poiId, coords, label) {
+    const facility = allRawFacilities.find(f => f.id === poiId);
+    if (facility) {
+        openItemPanel(facility);
+    }
+    if (Array.isArray(coords) && coords.length === 2) {
+        map.flyTo(coords, Math.max(map.getZoom(), 19), { animate: true, duration: 0.6 });
+        showAssistantHighlight(coords, label);
+    }
+}
+
+function focusAssistantCoords(coords, label) {
+    if (!Array.isArray(coords) || coords.length !== 2) return;
+    map.flyTo(coords, Math.max(map.getZoom(), 19), { animate: true, duration: 0.6 });
+    showAssistantHighlight(coords, label);
+}
+
+function focusAssistantClassroom(classroomName) {
+    if (!classroomName) return;
+    const target = allRawFacilities.find(f =>
+        f.name === classroomName && normalizeLayerType(f.layer_type) === 'classroom'
+    );
+    openClassroomPanel(classroomName);
+    if (target && target.building) {
+        flyToBuildingByName(target.building);
+    }
+}
+
+function applyAssistantAction(action) {
+    if (!action || !action.type || action.type === 'none') return;
+
+    if (action.type === 'focus_poi') {
+        focusAssistantPoi(action.poi_id, action.coords, action.label);
+    } else if (action.type === 'focus_coords') {
+        focusAssistantCoords(action.coords, action.label);
+    } else if (action.type === 'open_classroom') {
+        focusAssistantClassroom(action.classroom_name);
+    }
+}
+
+function appendAssistantMessage(text, role) {
+    const messagesEl = document.getElementById('assistant-messages');
+    if (!messagesEl) return null;
+    const bubble = document.createElement('div');
+    bubble.className = `assistant-msg assistant-msg-${role}`;
+    bubble.textContent = text;
+    messagesEl.appendChild(bubble);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    return bubble;
+}
+
+async function sendAssistantQuestion(question) {
+    appendAssistantMessage(question, 'user');
+    const pendingBubble = appendAssistantMessage('Thinking…', 'bot');
+
+    const userLat = currentUserLatLng ? currentUserLatLng[0] : MAP_CONFIG.center[0];
+    const userLng = currentUserLatLng ? currentUserLatLng[1] : MAP_CONFIG.center[1];
+
+    try {
+        const apiHost = window.ENV.API_HOST.replace(/\/$/, '');
+        const response = await fetch(`${apiHost}/api/assistant/chat`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ question, user_lat: userLat, user_lng: userLng }),
+        });
+
+        if (!response.ok) {
+            const errBody = await response.json().catch(() => ({}));
+            throw new Error(errBody.detail || `Request failed: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (pendingBubble) pendingBubble.textContent = data.answer || 'No answer received.';
+        applyAssistantAction(data.action);
+    } catch (error) {
+        console.error('Assistant request failed', error);
+        if (pendingBubble) {
+            pendingBubble.textContent = 'Sorry, something went wrong reaching the AI advisor.';
+            pendingBubble.classList.add('assistant-msg-error');
+        }
+    }
+}
+
+function initAssistantPanel() {
+    const toggleBtn = document.getElementById('assistant-toggle-btn');
+    const panel = document.getElementById('assistant-panel');
+    const closeBtn = document.getElementById('assistant-panel-close');
+    const form = document.getElementById('assistant-form');
+    const input = document.getElementById('assistant-input');
+
+    if (!toggleBtn || !panel || !form || !input) return;
+
+    toggleBtn.addEventListener('click', () => {
+        panel.classList.toggle('open');
+        if (panel.classList.contains('open')) input.focus();
+    });
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => panel.classList.remove('open'));
+    }
+
+    form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const question = input.value.trim();
+        if (!question) return;
+        input.value = '';
+        sendAssistantQuestion(question);
+    });
+}
 
 function selectFloor(index) {
     const tabs = document.querySelectorAll('.building-floor-tab');
@@ -1176,7 +1801,7 @@ function renderFloorContent(floor) {
         const normalizedType = normalizeLayerType(type);
         const btn = document.createElement('button');
         btn.className = 'item-filter-btn';
-        btn.dataset.type = type; // 💡 优化项 6: 绑好 dataset.type 确保样式切换不报 ReferenceError
+        btn.dataset.type = type; 
         btn.textContent = POI_ICONS[normalizedType] || '📍';
         btn.title = normalizedType.replace(/_/g, ' ');
         btn.addEventListener('click', () => {
@@ -1251,7 +1876,6 @@ function transformFacilities(facilities) {
         });
     });
 
-    // Group point facilities by building -> floor -> items
     const groupedByBuilding = {};
     const groupedClassroomsByBuilding = {};
     pointFacilities.forEach(f => {
@@ -1281,7 +1905,6 @@ function transformFacilities(facilities) {
         });
     });
 
-    // Building polygons -> match placePOIs' expected shape
     const buildingItems = buildingPolygons.map(poly => {
         const coords = poly.coords;
         const buildingName = poly.building;
