@@ -266,6 +266,7 @@ window.onload = function() {
     initHeatmapLayerControls();
     initHeatmapSettingsToggle();
     initHeatmapTimelineControls();
+    initAssistantPanel();
     loadHeatmapSnapshot();
     connectHeatmapWebSocket();
     window.addEventListener('resize', updateDetailPanelPositions);
@@ -1569,6 +1570,172 @@ function closeClassroomPanel() {
     const panel = document.getElementById('classroom-panel');
     if (panel) panel.classList.remove('open');
     unregisterDetailPanel('classroom-panel');
+}
+
+const ASSISTANT_HIGHLIGHT_DURATION_MS = 8000;
+let assistantHighlightMarker = null;
+let assistantHighlightTimer = null;
+
+function showAssistantHighlight(coords, label) {
+    if (!Array.isArray(coords) || coords.length !== 2) return;
+
+    if (assistantHighlightMarker) {
+        map.removeLayer(assistantHighlightMarker);
+        assistantHighlightMarker = null;
+    }
+    if (assistantHighlightTimer) {
+        clearTimeout(assistantHighlightTimer);
+        assistantHighlightTimer = null;
+    }
+
+    const icon = L.divIcon({
+        html: '<div class="assistant-highlight-pulse"></div><div class="assistant-highlight-dot"></div>',
+        className: 'assistant-highlight-marker',
+        iconSize: [28, 28],
+        iconAnchor: [14, 14],
+    });
+
+    assistantHighlightMarker = L.marker(coords, { icon, interactive: false, zIndexOffset: 3000 }).addTo(map);
+    if (label) {
+        assistantHighlightMarker
+            .bindTooltip(label, { permanent: true, direction: 'top', offset: [0, -14], className: 'poi-tooltip' })
+            .openTooltip();
+    }
+
+    assistantHighlightTimer = setTimeout(() => {
+        if (assistantHighlightMarker) {
+            map.removeLayer(assistantHighlightMarker);
+            assistantHighlightMarker = null;
+        }
+        assistantHighlightTimer = null;
+    }, ASSISTANT_HIGHLIGHT_DURATION_MS);
+}
+
+function flyToBuildingByName(buildingName) {
+    if (!buildingName) return;
+    const buildingPolygon = allRawFacilities.find(f =>
+        normalizeLayerType(f.layer_type) === 'polygon' &&
+        normalizeBuildingName(f.building) === normalizeBuildingName(buildingName)
+    );
+    if (!buildingPolygon || !Array.isArray(buildingPolygon.coords)) return;
+
+    const bounds = L.polygon(buildingPolygon.coords).getBounds();
+    map.flyToBounds(bounds, {
+        paddingTopLeft: [380, 44],
+        paddingBottomRight: [60, 110],
+        duration: 0.6,
+        maxZoom: 20
+    });
+}
+
+function focusAssistantPoi(poiId, coords, label) {
+    const facility = allRawFacilities.find(f => f.id === poiId);
+    if (facility) {
+        openItemPanel(facility);
+    }
+    if (Array.isArray(coords) && coords.length === 2) {
+        map.flyTo(coords, Math.max(map.getZoom(), 19), { animate: true, duration: 0.6 });
+        showAssistantHighlight(coords, label);
+    }
+}
+
+function focusAssistantCoords(coords, label) {
+    if (!Array.isArray(coords) || coords.length !== 2) return;
+    map.flyTo(coords, Math.max(map.getZoom(), 19), { animate: true, duration: 0.6 });
+    showAssistantHighlight(coords, label);
+}
+
+function focusAssistantClassroom(classroomName) {
+    if (!classroomName) return;
+    const target = allRawFacilities.find(f =>
+        f.name === classroomName && normalizeLayerType(f.layer_type) === 'classroom'
+    );
+    openClassroomPanel(classroomName);
+    if (target && target.building) {
+        flyToBuildingByName(target.building);
+    }
+}
+
+function applyAssistantAction(action) {
+    if (!action || !action.type || action.type === 'none') return;
+
+    if (action.type === 'focus_poi') {
+        focusAssistantPoi(action.poi_id, action.coords, action.label);
+    } else if (action.type === 'focus_coords') {
+        focusAssistantCoords(action.coords, action.label);
+    } else if (action.type === 'open_classroom') {
+        focusAssistantClassroom(action.classroom_name);
+    }
+}
+
+function appendAssistantMessage(text, role) {
+    const messagesEl = document.getElementById('assistant-messages');
+    if (!messagesEl) return null;
+    const bubble = document.createElement('div');
+    bubble.className = `assistant-msg assistant-msg-${role}`;
+    bubble.textContent = text;
+    messagesEl.appendChild(bubble);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    return bubble;
+}
+
+async function sendAssistantQuestion(question) {
+    appendAssistantMessage(question, 'user');
+    const pendingBubble = appendAssistantMessage('Thinking…', 'bot');
+
+    const userLat = currentUserLatLng ? currentUserLatLng[0] : MAP_CONFIG.center[0];
+    const userLng = currentUserLatLng ? currentUserLatLng[1] : MAP_CONFIG.center[1];
+
+    try {
+        const apiHost = window.ENV.API_HOST.replace(/\/$/, '');
+        const response = await fetch(`${apiHost}/api/assistant/chat`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ question, user_lat: userLat, user_lng: userLng }),
+        });
+
+        if (!response.ok) {
+            const errBody = await response.json().catch(() => ({}));
+            throw new Error(errBody.detail || `Request failed: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (pendingBubble) pendingBubble.textContent = data.answer || 'No answer received.';
+        applyAssistantAction(data.action);
+    } catch (error) {
+        console.error('Assistant request failed', error);
+        if (pendingBubble) {
+            pendingBubble.textContent = 'Sorry, something went wrong reaching the AI advisor.';
+            pendingBubble.classList.add('assistant-msg-error');
+        }
+    }
+}
+
+function initAssistantPanel() {
+    const toggleBtn = document.getElementById('assistant-toggle-btn');
+    const panel = document.getElementById('assistant-panel');
+    const closeBtn = document.getElementById('assistant-panel-close');
+    const form = document.getElementById('assistant-form');
+    const input = document.getElementById('assistant-input');
+
+    if (!toggleBtn || !panel || !form || !input) return;
+
+    toggleBtn.addEventListener('click', () => {
+        panel.classList.toggle('open');
+        if (panel.classList.contains('open')) input.focus();
+    });
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => panel.classList.remove('open'));
+    }
+
+    form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const question = input.value.trim();
+        if (!question) return;
+        input.value = '';
+        sendAssistantQuestion(question);
+    });
 }
 
 function selectFloor(index) {

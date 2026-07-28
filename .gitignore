@@ -7,3 +7,4 @@
 venv/
 .netsfc_pyvenv
 __pycache__/
+.env

@@ -87,7 +87,7 @@ async function sendLatency(latitude, longitude, accuracy, ping_ms) {
 async function measureAndSendBandwidth(latitude, longitude, ping_ms, sizeBytes = 2_000_000) {
     const padding = 'x'.repeat(sizeBytes);
 
-    const info = {
+    const probeInfo = {
         coords: [parseFloat(latitude), parseFloat(longitude)],
         signal: 3.0,
         signal_strength: 3.0,
@@ -95,12 +95,12 @@ async function measureAndSendBandwidth(latitude, longitude, ping_ms, sizeBytes =
         _padding: padding,
     };
 
-    const body = JSON.stringify(info);
+    const body = JSON.stringify(probeInfo);
     const actualBytes = new Blob([body]).size;
 
     const t1 = Date.now();
 
-    const response = await fetch(`${API_HOST}/api/measurements`, {
+    await fetch(`${API_HOST}/api/measurements`, {
         method: 'POST',
         cache: 'no-store',
         headers: { 'Content-Type': 'application/json' },
@@ -109,6 +109,22 @@ async function measureAndSendBandwidth(latitude, longitude, ping_ms, sizeBytes =
 
     const seconds = (Date.now() - t1) / 1000;
     const mbps = (actualBytes * 8 / seconds) / 1_000_000;
+
+    // The probe above only times the upload - the server has no way to know the
+    // throughput it implies, so `bandwidth` on that row is always 0. Record the
+    // computed value as its own measurement so it actually reaches the heatmap.
+    const response = await fetch(`${API_HOST}/api/measurements`, {
+        method: 'POST',
+        cache: 'no-store',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            coords: [parseFloat(latitude), parseFloat(longitude)],
+            signal: 3.0,
+            signal_strength: 3.0,
+            ping_ms: parseFloat(ping_ms),
+            bandwidth: mbps,
+        }),
+    });
 
     return { response, mbps };
 }
