@@ -114,6 +114,7 @@ let currentBuildingFloors = [];
 let currentFloorItems = [];  
 let activeItemFilter = null;
 let allRawFacilities = [];
+let allBuildingItems = [];
 let currentSelectedFloor = null;
 let detailPanelOrder = [];
 
@@ -287,7 +288,20 @@ function initHeatmapLayerControls() {
         { 'Campus Map': baseTileLayer },
         { Heatmap: heatLayer },
         { position: 'bottomright', collapsed: true }
-    ).addTo(map);
+    );
+
+    // Leaflet's layer control auto-disables an overlay's checkbox once the
+    // current zoom exceeds `layer.options.maxZoom` (see _checkDisabledLayers
+    // in leaflet-src.js). heatLayer.options.maxZoom is HEATMAP_INTENSITY_REFERENCE_ZOOM
+    // (17) - purely a tuning knob for leaflet.heat's own intensity-fade math,
+    // not a "hide above this zoom" constraint - but Leaflet reuses the same
+    // option name for both meanings. Without this override (installed before
+    // addTo, since addTo->onAdd already triggers one _checkDisabledLayers
+    // call), the Heatmap checkbox here silently becomes disabled and
+    // unclickable at any zoom above 17, which is most of the map's normal
+    // viewing range.
+    layerControl._checkDisabledLayers = function () {};
+    layerControl.addTo(map);
 
     map.on('overlayadd', (event) => {
         if (event.layer !== heatLayer) return;
@@ -635,6 +649,7 @@ function loadPOIs() {
             allRawFacilities = facilities;
             const { buildingItems, pointItems, sharedConnectorAreas } = transformFacilities(facilities);
             allPointFacilities = pointItems;
+            allBuildingItems = buildingItems;
             placeAlwaysVisibleItems(pointItems);
             placeSharedConnectorAreas(sharedConnectorAreas);
             placePOIs(buildingItems);
@@ -1628,6 +1643,22 @@ function flyToBuildingByName(buildingName) {
     });
 }
 
+function focusAssistantBuilding(buildingName) {
+    if (!buildingName) return;
+    const item = allBuildingItems.find(b => normalizeBuildingName(b.building) === normalizeBuildingName(buildingName));
+    if (!item) {
+        flyToBuildingByName(buildingName);
+        return;
+    }
+    openBuildingPanel(item);
+    map.flyToBounds(L.polygon(item.coords).getBounds(), {
+        paddingTopLeft: [380, 44],
+        paddingBottomRight: [60, 110],
+        duration: 0.6,
+        maxZoom: 20
+    });
+}
+
 function focusAssistantPoi(poiId, coords, label) {
     const facility = allRawFacilities.find(f => f.id === poiId);
     if (facility) {
@@ -1665,6 +1696,8 @@ function applyAssistantAction(action) {
         focusAssistantCoords(action.coords, action.label);
     } else if (action.type === 'open_classroom') {
         focusAssistantClassroom(action.classroom_name);
+    } else if (action.type === 'focus_building') {
+        focusAssistantBuilding(action.building_name);
     }
 }
 
