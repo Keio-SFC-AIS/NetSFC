@@ -99,6 +99,7 @@ class AssistantAction(BaseModel):
     coords: list[float] | None = None
     label: str | None = None
     classroom_name: str | None = None
+    building_name: str | None = None
 
 class AssistantQueryResponse(BaseModel):
     answer: str
@@ -350,11 +351,74 @@ def tool_get_classroom_details(query: str) -> Dict[str, Any]:
         "notes": details.get("notes"),
     }
 
+def _facility_row_to_result(row: tuple) -> Dict[str, Any] | None:
+    id_, name, alias, layer_type, building, floor, coords_raw = row
+    coords_list: Any = json.loads(coords_raw) if coords_raw else []
+    is_building = layer_type == 'polygon'
+
+    point: List[float] | None = None
+    if is_building:
+        if isinstance(coords_list, list) and len(coords_list) >= 3:
+            lats = [c[0] for c in coords_list]
+            lngs = [c[1] for c in coords_list]
+            point = [sum(lats) / len(lats), sum(lngs) / len(lngs)]
+    elif isinstance(coords_list, list) and len(coords_list) == 2:
+        point = [float(coords_list[0]), float(coords_list[1])]
+
+    return {
+        "id": id_, "name": name, "alias": alias, "layer_type": layer_type,
+        "building": building, "floor": floor, "coords": point, "is_building": is_building,
+    }
+
+def tool_find_facility_by_name(query: str, limit: int = 5) -> Dict[str, Any]:
+    """General 'where is X' lookup for buildings and specific named facilities
+    (e.g. 'Media Center', 'Kappa', 'Lawson') - anything find_nearest_poi (nearest
+    of a TYPE) and get_classroom_details (a specific numbered classroom) don't cover."""
+    if not DB_NAME:
+        raise ValueError("Database invalid.")
+
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT id, name, alias, layer_type, building, floor, coords FROM campus_pois WHERE layer_type != 'classroom'"
+    )
+    rows = cursor.fetchall()
+    conn.close()
+
+    raw_query = query.strip()
+    query_lower = raw_query.lower()
+
+    matching_rows = [
+        row for row in rows
+        if any(field and query_lower in field.lower() for field in (row[1], row[2], row[4]))
+    ]
+
+    if not matching_rows:
+        label_to_row = {label: row for row in rows for label in (row[1], row[2], row[4]) if label}
+        close_labels = difflib.get_close_matches(raw_query, label_to_row.keys(), n=limit, cutoff=0.5)
+        if not close_labels:
+            return {"error": f"No facility found matching '{query}'."}
+        matching_rows = [label_to_row[label] for label in close_labels]
+
+    results = [r for r in (_facility_row_to_result(row) for row in matching_rows) if r]
+    # Bias whole-building matches to the top - a query like "Kappa" is far more
+    # likely asking "where is the Kappa building" than about, say, a nearby
+    # garbage can that happens to belong to it.
+    results.sort(key=lambda r: not r["is_building"])
+    return {"results": results[:limit]}
+
 ASSISTANT_SYSTEM_PROMPT = (
     "You are the NetSFC AI Advisor for Keio University SFC campus. You help students "
     "find facilities, pick a good wifi spot, and learn about classrooms. Always call one "
     "of the available tools to look up real campus data before answering location, wifi, "
-    "or classroom questions - never guess distances, coordinates, or equipment lists. "
+    "or classroom questions - never guess distances, coordinates, or equipment lists, and "
+    "never answer a 'where is X' question from your own general knowledge of the world - "
+    "this campus's facilities only exist in the tool data, even for things that sound like "
+    "generic chain stores (e.g. a convenience store name). Tool choice matters: "
+    "use find_facility_by_name for 'where is <a specific named place>' (a building like "
+    "'Kappa' or 'Media Center', or a specific named facility like 'Lawson'); use "
+    "find_nearest_poi for 'nearest <type of facility>' questions where no specific name was "
+    "given; use get_classroom_details only for a specific numbered classroom (e.g. 'K11'). "
     "If a question is unrelated to campus (small talk, etc.), answer briefly without "
     "calling a tool. Keep answers concise and concrete, referencing the real names/numbers "
     "returned by the tools."
@@ -417,12 +481,33 @@ ASSISTANT_TOOLS: List[Dict[str, Any]] = [
             },
         },
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "find_facility_by_name",
+            "description": (
+                "Look up where a specific named place is on campus - a building "
+                "(e.g. 'Kappa', 'Media Center', 'Omega Building') or a specific named "
+                "facility (e.g. 'Lawson', 'CO-OP Cafeteria', 'Fukuzawa Yukichi Statue'). "
+                "Use this for any 'where is X' question about a named place, not just a "
+                "type of facility."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string", "description": "The building or facility name the user asked about"},
+                },
+                "required": ["query"],
+            },
+        },
+    },
 ]
 
 TOOL_IMPLEMENTATIONS = {
     "find_nearest_poi": tool_find_nearest_poi,
     "recommend_wifi_spot": tool_recommend_wifi_spot,
     "get_classroom_details": tool_get_classroom_details,
+    "find_facility_by_name": tool_find_facility_by_name,
 }
 
 def _openai_chat_request(messages: List[Dict[str, Any]], tools: List[Dict[str, Any]] | None = None) -> Dict[str, Any]:
@@ -480,6 +565,17 @@ def _build_action_from_tool_result(tool_name: str, tool_result: Dict[str, Any]) 
         if "name" not in tool_result:
             return {"type": "none"}
         return {"type": "open_classroom", "classroom_name": tool_result["name"]}
+
+    if tool_name == "find_facility_by_name":
+        results = tool_result.get("results") or []
+        if not results:
+            return {"type": "none"}
+        top = results[0]
+        if top.get("is_building"):
+            return {"type": "focus_building", "building_name": top["building"] or top["name"], "label": top["name"]}
+        if not top.get("coords"):
+            return {"type": "none"}
+        return {"type": "focus_poi", "poi_id": top["id"], "coords": top["coords"], "label": top["name"]}
 
     return {"type": "none"}
 
