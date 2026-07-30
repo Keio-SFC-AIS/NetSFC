@@ -66,15 +66,12 @@ const DETAIL_PANEL_WIDTH = 380;
 const DETAIL_PANEL_GAP = 16;
 const MEDIUM_LAYOUT_BREAKPOINT = 1100;
 const MOBILE_LAYOUT_BREAKPOINT = 600;
-const HEATMAP_DEFAULT_LOOKBACK_HOURS = 168;
+const HEATMAP_LIVE_WINDOW_MINUTES = 45;
+const HEATMAP_SNAPSHOT_REFRESH_MS = 60000;
 const HEATMAP_DEFAULT_LIMIT = 10000;
 const HEATMAP_MAX_POINTS = 12000;
 const HEATMAP_WS_RECONNECT_MS = 2000;
 const HEATMAP_WS_PING_MS = 25000;
-// Zoom level at which heat points render at full intensity. leaflet.heat fades
-// points out the further the current zoom is from this value, so it should sit
-// near the map's everyday viewing zoom (MAP_CONFIG.zoom), not the map's maxZoom -
-// using maxZoom (22) here crushed intensity to ~6% opacity at the default zoom.
 const HEATMAP_INTENSITY_REFERENCE_ZOOM = 17;
 const HEATMAP_TIMELINE_LOOKBACK_HOURS = 6;
 const HEATMAP_TIMELINE_BUCKET_MINUTES = 15;
@@ -94,6 +91,7 @@ let timelineIsLive = true;
 let timelinePlayTimer = null;
 let timelineRefreshTimer = null;
 let timelineEls = null;
+let heatmapSnapshotRefreshTimer = null;
 let buildingAliasLayerGroup = null;
 let buildingAliasMarkers = [];
 let buildingAmenityLayerGroup = null;
@@ -154,6 +152,24 @@ window.onload = function() {
     L.control.zoom({
         position: 'bottomright'
     }).addTo(map);
+
+    // #locate-btn lives in the static HTML (so initGeolocation's listener setup
+    // stays simple) but gets moved into Leaflet's own bottomright control stack
+    // here, rather than being pinned via hardcoded CSS offsets - that's what
+    // previously made it overlap the layers control: Leaflet stacks its own
+    // bottomright controls with automatic margins, but a manually-positioned
+    // sibling has no way to know how tall that stack currently is.
+    const LocateControl = L.Control.extend({
+        options: { position: 'bottomright' },
+        onAdd: function () {
+            const btn = document.getElementById('locate-btn');
+            btn.classList.add('leaflet-control');
+            L.DomEvent.disableClickPropagation(btn);
+            L.DomEvent.disableScrollPropagation(btn);
+            return btn;
+        }
+    });
+    new LocateControl().addTo(map);
 
     baseTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
         attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -243,7 +259,10 @@ window.onload = function() {
     // skip it and let the full _reset() from the listener below take over instead.
     heatLayer._animateZoom = function () {};
 
-    heatLayer.addTo(map);
+    // Not added to the map here on purpose: the base "Campus Map" tile layer
+    // should be what users see by default. heatLayer is only attached once the
+    // user opts in via the layer control or the settings toggle (see
+    // initHeatmapLayerControls / initHeatmapSettingsToggle).
 
     map.on('move rotate zoom resetview', () => {
         if (heatLayer && heatLayer._map) {
@@ -274,6 +293,7 @@ window.onload = function() {
     window.addEventListener('beforeunload', () => {
         teardownHeatmapWebSocket();
         stopTimelinePlayback();
+        stopHeatmapSnapshotRefresh();
         if (timelineRefreshTimer) clearInterval(timelineRefreshTimer);
     });
 };
@@ -307,13 +327,28 @@ function initHeatmapLayerControls() {
         if (event.layer !== heatLayer) return;
         syncHeatmapSettingCheckbox(true);
         showHeatmapTimeline();
+        startHeatmapSnapshotRefresh();
     });
 
     map.on('overlayremove', (event) => {
         if (event.layer !== heatLayer) return;
         syncHeatmapSettingCheckbox(false);
         hideHeatmapTimeline();
+        stopHeatmapSnapshotRefresh();
     });
+}
+
+function startHeatmapSnapshotRefresh() {
+    stopHeatmapSnapshotRefresh();
+    loadHeatmapSnapshot();
+    heatmapSnapshotRefreshTimer = setInterval(loadHeatmapSnapshot, HEATMAP_SNAPSHOT_REFRESH_MS);
+}
+
+function stopHeatmapSnapshotRefresh() {
+    if (heatmapSnapshotRefreshTimer) {
+        clearInterval(heatmapSnapshotRefreshTimer);
+        heatmapSnapshotRefreshTimer = null;
+    }
 }
 
 function initHeatmapSettingsToggle() {
@@ -551,7 +586,12 @@ function initHeatmapTimelineControls() {
 
 async function loadHeatmapSnapshot() {
     const apiHost = window.ENV.API_HOST.replace(/\/$/, '');
-    const url = `${apiHost}/api/measurements/heatmap?lookback_hours=${HEATMAP_DEFAULT_LOOKBACK_HOURS}&limit=${HEATMAP_DEFAULT_LIMIT}`;
+    const endDt = new Date();
+    const startDt = new Date(endDt.getTime() - HEATMAP_LIVE_WINDOW_MINUTES * 60 * 1000);
+    const url = `${apiHost}/api/measurements/heatmap`
+        + `?start_ts=${encodeURIComponent(startDt.toISOString())}`
+        + `&end_ts=${encodeURIComponent(endDt.toISOString())}`
+        + `&limit=${HEATMAP_DEFAULT_LIMIT}`;
     try {
         const response = await fetch(url);
         if (!response.ok) {
@@ -1755,7 +1795,14 @@ function initAssistantPanel() {
 
     toggleBtn.addEventListener('click', () => {
         panel.classList.toggle('open');
-        if (panel.classList.contains('open')) input.focus();
+        // preventScroll matters here: the panel is still off-screen mid slide-in
+        // transition at this point (translateY/translateX not yet settled), so a
+        // plain focus() makes the browser scroll/pan the whole document to reveal
+        // it - since none of these overlay panels are position:fixed, that shift
+        // permanently desyncs every absolutely-positioned overlay from the
+        // viewport (most visible on mobile, where the panel starts translated
+        // fully below the screen).
+        if (panel.classList.contains('open')) input.focus({ preventScroll: true });
     });
 
     if (closeBtn) {
