@@ -179,28 +179,24 @@
     }
 
     .locate-btn {
-      position: absolute;
-      bottom: 100px;
-      right: 10px;
       width: 30px;
       height: 30px;
       background: #ffffff;
       border: none;
       border-radius: 50%;
       box-shadow: 0 2px 8px rgba(0,0,0,0.18);
-      z-index: 10;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 18px;
+      color: #3c4043;
       transition: transform 0.15s ease, color 0.15s ease;
     }
-    .locate-btn:hover { 
-      transform: scale(1.08); 
+    .locate-btn:hover {
+      transform: scale(1.08);
     }
-    .locate-btn.active { 
-      color: #1a73e8; 
+    .locate-btn.active {
+      color: #1a73e8;
     }
 
     .user-location-marker {
@@ -1148,13 +1144,17 @@
       </div>
       <div class="setting-item">
         <label for="setting-heatmap">Show Heatmap</label>
-        <input type="checkbox" id="setting-heatmap" checked />
+        <input type="checkbox" id="setting-heatmap" />
       </div>
     </div>
   </div>
 </div>
 
-<button id="locate-btn" class="locate-btn" title="Re-center on my location">🎯</button>
+<button id="locate-btn" class="locate-btn" title="Re-center on my location">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3H19c-.412-3.86-3.14-6.588-7-7V2.06h-2V4c-3.86.412-6.588 3.14-7 7H1.06v2H3c.412 3.86 3.14 6.588 7 7v1.94h2V20c3.86-.412 6.588-3.14 7-7h1.94v-2zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/>
+  </svg>
+</button>
 
 <button id="assistant-toggle-btn" class="assistant-toggle-btn" title="NetSFC AI Advisor">🤖</button>
 
