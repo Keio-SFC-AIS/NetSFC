@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException, Query, status, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 import sqlite3, os, asyncio, json, math, re, difflib
@@ -723,6 +724,29 @@ async def report_measurement(report: MeasurementReport):
         return {"status": "success", "message": "Measurement recorded and broadcasted"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+SPEEDTEST_CHUNK_BYTES = 65536
+SPEEDTEST_MAX_BYTES = 20_000_000
+
+def _random_byte_stream(total_bytes: int):
+    remaining = total_bytes
+    while remaining > 0:
+        chunk = min(SPEEDTEST_CHUNK_BYTES, remaining)
+        yield os.urandom(chunk)
+        remaining -= chunk
+
+@app.get("/api/speedtest/download")
+async def speedtest_download(
+    size_bytes: int = Query(default=4_000_000, ge=1000, le=SPEEDTEST_MAX_BYTES)
+):
+    # Random (incompressible) bytes streamed straight through - unlike /api/measurements
+    # this is a GET with no request body, so it isn't subject to the reverse proxy's
+    # upload size limit that a large POST would hit.
+    return StreamingResponse(
+        _random_byte_stream(size_bytes),
+        media_type="application/octet-stream",
+        headers={"Cache-Control": "no-store"},
+    )
 
 @app.get("/api/measurements/heatmap", response_model=List[HeatmapPointResponse])
 async def get_heatmap_data(
