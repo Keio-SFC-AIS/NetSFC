@@ -1,4 +1,3 @@
-// Latency Checker by using fetch, calculates with package send time and response time
 const API_HOST = window.ENV.API_HOST;
 const CAMPUS_BOUNDS = {
     minLat: 35.384,
@@ -84,34 +83,49 @@ async function sendLatency(latitude, longitude, accuracy, ping_ms) {
     return response;
 }
 
-async function measureAndSendBandwidth(latitude, longitude, ping_ms, sizeBytes = 2_000_000) {
-    const padding = 'x'.repeat(sizeBytes);
+async function measureAndSendBandwidth(latitude, longitude, ping_ms, sizeBytes = 4_000_000, timeoutMs = 10_000) {
+    // Download-based probe (same idea as fast.com): fetch a large chunk of
+    // random bytes and time how long it takes to fully arrive. An upload of
+    // a multi-MB JSON body used to be sent here instead, but that measured
+    // upload rather than download speed and, in production, silently ran
+    // into the reverse proxy's request-body size limit (a 413 with no CORS
+    // headers, which browsers surface as an opaque "CORS policy" error).
+    // A GET has no request body, so it isn't subject to that limit.
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
-    const probeInfo = {
-        coords: [parseFloat(latitude), parseFloat(longitude)],
-        signal: 3.0,
-        signal_strength: 3.0,
-        ping_ms: parseFloat(ping_ms),
-        _padding: padding,
-    };
+    let receivedBytes = 0;
+    const t1 = performance.now();
 
-    const body = JSON.stringify(probeInfo);
-    const actualBytes = new Blob([body]).size;
+    try {
+        const dlResponse = await fetch(`${API_HOST}/api/speedtest/download?size_bytes=${sizeBytes}`, {
+            cache: 'no-store',
+            signal: controller.signal,
+        });
 
-    const t1 = Date.now();
+        const reader = dlResponse.body.getReader();
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            receivedBytes += value.length;
+        }
+    } catch (err) {
+        // A timeout abort still leaves us a partial, usable sample as long as
+        // some bytes came through; anything else (e.g. network failure before
+        // any data arrived) should propagate.
+        if (err.name !== 'AbortError' || receivedBytes === 0) {
+            clearTimeout(timeout);
+            throw err;
+        }
+    } finally {
+        clearTimeout(timeout);
+    }
 
-    await fetch(`${API_HOST}/api/measurements`, {
-        method: 'POST',
-        cache: 'no-store',
-        headers: { 'Content-Type': 'application/json' },
-        body,
-    });
+    const seconds = (performance.now() - t1) / 1000;
+    const mbps = (receivedBytes * 8 / seconds) / 1_000_000;
 
-    const seconds = (Date.now() - t1) / 1000;
-    const mbps = (actualBytes * 8 / seconds) / 1_000_000;
-
-    // The probe above only times the upload - the server has no way to know the
-    // throughput it implies, so `bandwidth` on that row is always 0. Record the
+    // The probe above only measures the download - the server has no way to know
+    // the throughput it implies, so `bandwidth` on that row is always 0. Record the
     // computed value as its own measurement so it actually reaches the heatmap.
     const response = await fetch(`${API_HOST}/api/measurements`, {
         method: 'POST',
