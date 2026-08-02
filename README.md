@@ -63,12 +63,30 @@ HOST=0.0.0.0
 PORT=8080
 RUNTIME=PRODUCTION
 CORS_ORIGINS=http://localhost:5500,http://127.0.0.1:5500
-CHATGPT_API_KEY=...
-# Optional: 
-# CHATGPT_MODEL=gpt-4o-mini
+
+# AI Advisor - pick one provider and set its key. See .env.example for all options.
+AI_PROVIDER=openai
+OPENAI_API_KEY=...
+# OPENAI_MODEL=gpt-4o-mini
 ```
 
 Change `RUNTIME` from `PRODUCTION` to `DEBUG` for development. 
+
+#### AI Advisor provider
+
+The AI Advisor (`/api/assistant/chat`) supports multiple LLM providers - pick one with
+`AI_PROVIDER` and set the matching API key. See `.env.example` for the full list of
+env vars and model overrides for each provider:
+
+| `AI_PROVIDER` | API key env var | Get a key |
+|---|---|---|
+| `openai` (default) | `OPENAI_API_KEY` | https://platform.openai.com/api-keys |
+| `grok` | `GROK_API_KEY` | https://console.x.ai |
+| `gemini` | `GEMINI_API_KEY` | https://aistudio.google.com/apikey |
+| `claude` | `ANTHROPIC_API_KEY` | https://console.anthropic.com |
+
+If `AI_PROVIDER` is unset it defaults to `openai`. The legacy `CHATGPT_API_KEY` /
+`CHATGPT_MODEL` vars still work as aliases for `OPENAI_API_KEY` / `OPENAI_MODEL`.
 
 ### 3. Run backend
 
