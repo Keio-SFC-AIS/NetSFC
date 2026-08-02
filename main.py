@@ -4,21 +4,26 @@ from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 import sqlite3, os, asyncio, json, math, re, difflib
-import urllib.request
-import urllib.error
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Coroutine, cast
 from dotenv import load_dotenv
 from loguru import logger
 from init_db import init_db
+from ai_providers import get_ai_provider, AIProviderError, ChatProvider
 
 load_dotenv()
 APITITLE:str | None = os.getenv("APITITLE")
 VERSION:str | None = os.getenv("VERSION")
 DB_NAME:str | None = os.getenv("DB_NAME")
 RUNTIME:str | None = os.getenv("RUNTIME")
-CHATGPT_API_KEY:str | None = os.getenv("CHATGPT_API_KEY") or os.getenv("OPENAI_API_KEY")
-CHATGPT_MODEL:str = os.getenv("CHATGPT_MODEL", "gpt-4o-mini")
+
+AI_CHAT_PROVIDER: ChatProvider | None
+try:
+    AI_CHAT_PROVIDER = get_ai_provider()
+except AIProviderError as e:
+    logger.error(f"AI Advisor is not available: {e}")
+    AI_CHAT_PROVIDER = None
+
 raw_origins = os.getenv("CORS_ORIGINS", "")
 origins = [origin.strip() for origin in raw_origins.split(",") if origin.strip()]
 
@@ -427,79 +432,67 @@ ASSISTANT_SYSTEM_PROMPT = (
 
 ASSISTANT_TOOLS: List[Dict[str, Any]] = [
     {
-        "type": "function",
-        "function": {
-            "name": "find_nearest_poi",
-            "description": (
-                "Find the nearest facility of a given type (vending machine, washroom, "
-                "water fountain, printer, aed, elevator, restaurant, garbage can, "
-                "accessible washroom, statue) to a location on SFC campus."
-            ),
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "poi_type": {"type": "string", "description": "The kind of facility, e.g. 'vending machine', 'restroom', 'water fountain'"},
-                    "near_lat": {"type": "number", "description": "Latitude to search near. Omit to use the visitor's current location."},
-                    "near_lng": {"type": "number", "description": "Longitude to search near. Omit to use the visitor's current location."},
-                },
-                "required": ["poi_type"],
+        "name": "find_nearest_poi",
+        "description": (
+            "Find the nearest facility of a given type (vending machine, washroom, "
+            "water fountain, printer, aed, elevator, restaurant, garbage can, "
+            "accessible washroom, statue) to a location on SFC campus."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "poi_type": {"type": "string", "description": "The kind of facility, e.g. 'vending machine', 'restroom', 'water fountain'"},
+                "near_lat": {"type": "number", "description": "Latitude to search near. Omit to use the visitor's current location."},
+                "near_lng": {"type": "number", "description": "Longitude to search near. Omit to use the visitor's current location."},
             },
+            "required": ["poi_type"],
         },
     },
     {
-        "type": "function",
-        "function": {
-            "name": "recommend_wifi_spot",
-            "description": (
-                "Recommend the best on-campus spot(s) for a strong, low-latency wifi "
-                "connection (e.g. for a Zoom call or a large download), based on real "
-                "recent measurements."
-            ),
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "min_bandwidth_mbps": {"type": "number", "description": "Minimum acceptable bandwidth in Mbps, if the user specified one"},
-                    "max_ping_ms": {"type": "number", "description": "Maximum acceptable ping in ms, if the user specified one"},
-                },
-                "required": [],
+        "name": "recommend_wifi_spot",
+        "description": (
+            "Recommend the best on-campus spot(s) for a strong, low-latency wifi "
+            "connection (e.g. for a Zoom call or a large download), based on real "
+            "recent measurements."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "min_bandwidth_mbps": {"type": "number", "description": "Minimum acceptable bandwidth in Mbps, if the user specified one"},
+                "max_ping_ms": {"type": "number", "description": "Maximum acceptable ping in ms, if the user specified one"},
             },
+            "required": [],
         },
     },
     {
-        "type": "function",
-        "function": {
-            "name": "get_classroom_details",
-            "description": (
-                "Look up a specific classroom's details (equipment, capacity, layout, "
-                "notes) by name or shorthand, e.g. 'K11', 'Kappa 11', 'Omicron 23'."
-            ),
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "query": {"type": "string", "description": "The classroom name or shorthand the user asked about"},
-                },
-                "required": ["query"],
+        "name": "get_classroom_details",
+        "description": (
+            "Look up a specific classroom's details (equipment, capacity, layout, "
+            "notes) by name or shorthand, e.g. 'K11', 'Kappa 11', 'Omicron 23'."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string", "description": "The classroom name or shorthand the user asked about"},
             },
+            "required": ["query"],
         },
     },
     {
-        "type": "function",
-        "function": {
-            "name": "find_facility_by_name",
-            "description": (
-                "Look up where a specific named place is on campus - a building "
-                "(e.g. 'Kappa', 'Media Center', 'Omega Building') or a specific named "
-                "facility (e.g. 'Lawson', 'CO-OP Cafeteria', 'Fukuzawa Yukichi Statue'). "
-                "Use this for any 'where is X' question about a named place, not just a "
-                "type of facility."
-            ),
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "query": {"type": "string", "description": "The building or facility name the user asked about"},
-                },
-                "required": ["query"],
+        "name": "find_facility_by_name",
+        "description": (
+            "Look up where a specific named place is on campus - a building "
+            "(e.g. 'Kappa', 'Media Center', 'Omega Building') or a specific named "
+            "facility (e.g. 'Lawson', 'CO-OP Cafeteria', 'Fukuzawa Yukichi Statue'). "
+            "Use this for any 'where is X' question about a named place, not just a "
+            "type of facility."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string", "description": "The building or facility name the user asked about"},
             },
+            "required": ["query"],
         },
     },
 ]
@@ -510,38 +503,6 @@ TOOL_IMPLEMENTATIONS = {
     "get_classroom_details": tool_get_classroom_details,
     "find_facility_by_name": tool_find_facility_by_name,
 }
-
-def _openai_chat_request(messages: List[Dict[str, Any]], tools: List[Dict[str, Any]] | None = None) -> Dict[str, Any]:
-    if not CHATGPT_API_KEY:
-        raise HTTPException(
-            status_code=503,
-            detail="CHATGPT_API_KEY is not configured. Set it in .env before using /api/assistant/chat"
-        )
-
-    payload: Dict[str, Any] = {"model": CHATGPT_MODEL, "temperature": 0.2, "messages": messages}
-    if tools:
-        payload["tools"] = tools
-        payload["tool_choice"] = "auto"
-
-    req = urllib.request.Request(
-        url="https://api.openai.com/v1/chat/completions",
-        data=json.dumps(payload).encode("utf-8"),
-        headers={"Content-Type": "application/json", "Authorization": f"Bearer {CHATGPT_API_KEY}"},
-        method="POST",
-    )
-
-    try:
-        with urllib.request.urlopen(req, timeout=25) as response:
-            body = response.read().decode("utf-8")
-        parsed: Any = json.loads(body)
-        return cast(Dict[str, Any], parsed) if isinstance(parsed, dict) else {}
-    except urllib.error.HTTPError as e:
-        detail = e.read().decode("utf-8", errors="ignore") if hasattr(e, "read") else str(e)
-        logger.error(f"ChatGPT API HTTP error: {e.code} {detail}")
-        raise HTTPException(status_code=502, detail="ChatGPT API call failed")
-    except Exception as e:
-        logger.error(f"ChatGPT API error: {str(e)}")
-        raise HTTPException(status_code=502, detail="ChatGPT API request failed")
 
 def _build_action_from_tool_result(tool_name: str, tool_result: Dict[str, Any]) -> Dict[str, Any]:
     if "error" in tool_result:
@@ -581,33 +542,36 @@ def _build_action_from_tool_result(tool_name: str, tool_result: Dict[str, Any]) 
     return {"type": "none"}
 
 def run_assistant_tools_flow(question: str, user_lat: float | None, user_lng: float | None) -> Dict[str, Any]:
+    if AI_CHAT_PROVIDER is None:
+        raise HTTPException(
+            status_code=503,
+            detail="No AI provider is configured. Set AI_PROVIDER and its API key in .env before using /api/assistant/chat"
+        )
+
     messages: List[Dict[str, Any]] = [
         {"role": "system", "content": ASSISTANT_SYSTEM_PROMPT},
         {"role": "user", "content": question},
     ]
 
-    first = _openai_chat_request(messages, tools=ASSISTANT_TOOLS)
-    choices = first.get("choices") or []
-    if not choices:
-        raise HTTPException(status_code=502, detail="ChatGPT response did not include choices")
+    try:
+        first = AI_CHAT_PROVIDER.chat(messages, tools=ASSISTANT_TOOLS)
+    except AIProviderError as e:
+        raise HTTPException(status_code=e.status_code, detail=str(e))
 
-    message = choices[0].get("message") or {}
-    tool_calls = message.get("tool_calls") or []
-
-    if not tool_calls:
-        answer = str(message.get("content") or "").strip()
+    if not first.tool_calls:
+        answer = first.content.strip()
         return {"answer": answer or "I'm not sure how to help with that.", "action": {"type": "none"}}
 
-    messages.append(message)
+    messages.append({
+        "role": "assistant",
+        "content": first.content,
+        "tool_calls": [{"id": tc.id, "name": tc.name, "arguments": tc.arguments} for tc in first.tool_calls],
+    })
     action: Dict[str, Any] = {"type": "none"}
 
-    for tool_call in tool_calls:
-        function = tool_call.get("function") or {}
-        name = function.get("name")
-        try:
-            args = json.loads(function.get("arguments") or "{}")
-        except json.JSONDecodeError:
-            args = {}
+    for tool_call in first.tool_calls:
+        name = tool_call.name
+        args = dict(tool_call.arguments)
 
         implementation = TOOL_IMPLEMENTATIONS.get(name)
         if implementation is None:
@@ -637,17 +601,17 @@ def run_assistant_tools_flow(question: str, user_lat: float | None, user_lng: fl
 
         messages.append({
             "role": "tool",
-            "tool_call_id": tool_call.get("id"),
+            "tool_call_id": tool_call.id,
+            "name": name,
             "content": json.dumps(result, ensure_ascii=False),
         })
 
-    second = _openai_chat_request(messages)
-    second_choices = second.get("choices") or []
-    if not second_choices:
-        raise HTTPException(status_code=502, detail="ChatGPT response did not include choices")
+    try:
+        second = AI_CHAT_PROVIDER.chat(messages)
+    except AIProviderError as e:
+        raise HTTPException(status_code=e.status_code, detail=str(e))
 
-    final_message = second_choices[0].get("message") or {}
-    answer = str(final_message.get("content") or "").strip()
+    answer = second.content.strip()
     return {"answer": answer or "I found some information, but couldn't phrase a response.", "action": action}
 
 class ConnectionManager():
@@ -1026,7 +990,7 @@ async def assistant_chat(request: AssistantQueryRequest) -> AssistantQueryRespon
 
     return AssistantQueryResponse(
         answer=result["answer"],
-        model=CHATGPT_MODEL,
+        model=AI_CHAT_PROVIDER.model if AI_CHAT_PROVIDER else "unconfigured",
         action=AssistantAction(**result["action"]),
     )
 

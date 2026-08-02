@@ -222,10 +222,11 @@ See `docs/DATABASE.md` for the underlying table shapes.
 | `question` | string | yes | 3-1000 chars |
 | `user_lat` / `user_lng` | float | no | Visitor's current position, used by "nearest X" style questions when the question doesn't name a location explicitly |
 
-- Behavior: runs a two-round OpenAI tool-calling flow (`run_assistant_tools_flow()`)
+- Behavior: runs a two-round tool-calling flow (`run_assistant_tools_flow()`)
   against four local tools that query `campus_pois`/`wifi_measurements` directly -
-  the model never invents coordinates/equipment lists itself. See `report.md`
-  ("AI 校园顾问") for the full flow and tool descriptions.
+  the model never invents coordinates/equipment lists itself. The LLM backing this
+  flow is provider-agnostic (`ai_providers.py`) - OpenAI, Grok (xAI), Gemini, and
+  Claude are all supported and selected via the `AI_PROVIDER` env var (see README).
 - Response (JSON):
 ```json
 {
@@ -244,8 +245,9 @@ See `docs/DATABASE.md` for the underlying table shapes.
   `action.type` is one of `focus_poi`, `focus_coords`, `open_classroom`,
   `focus_building`, or `none` - the frontend uses it to drive the map (fly to a
   point, open a building/classroom panel) instead of only showing text.
-- Errors: `400` question shorter than 3 chars; `503` `CHATGPT_API_KEY` not
-  configured on the server; `502` the OpenAI API call itself failed.
+- Errors: `400` question shorter than 3 chars; `503` no AI provider configured
+  (missing API key, or `AI_PROVIDER` unset with no default key) on the server;
+  `502` the upstream LLM API call itself failed.
 
 ---
 
