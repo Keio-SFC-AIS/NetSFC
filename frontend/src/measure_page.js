@@ -1,5 +1,7 @@
 // Get user location after requesting permission, return Latitude/Longitude and marker
 
+import { initSystemUI } from './system_ui.js';
+
 const GEO_OPTIONS = {
     enableHighAccuracy: true,
     timeout: 15000,
@@ -132,6 +134,10 @@ function errorResult(error) {
 window.getLocation = getLocation;
 
 document.addEventListener('DOMContentLoaded', () => {
+    if (document.getElementById('button_locate')) {
+        initSystemUI();
+    }
+
     const manualBtn = document.getElementById('button_manual_coords');
     if (manualBtn) {
         manualBtn.addEventListener('click', useManualCoords);

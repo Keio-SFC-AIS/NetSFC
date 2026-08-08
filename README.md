@@ -3,6 +3,13 @@
 NetSFC is a campus map system for Keio University Shonan Fujisawa Campus (SFC).
 It combines facility information and real-time Wi-Fi measurements in one map.
 
+## Server Status 
+
+| Server | Status |
+| :--- | :--- | 
+| Keio SFC Server | <img src="https://status.tianyibrad.com/api/badge/24/status" alt="SFC Server Uptime" /> |
+| Backend | <img src="https://status.tianyibrad.com/api/badge/21/status" alt="SFC Server Uptime" /> | 
+
 ## Current Status
 
 The project is already in a usable state:
