@@ -1,4 +1,5 @@
 import { boundCheck } from './measure_page.js';
+import { initSystemUI } from './system_ui.js';
 
 const MAP_CONFIG = {
     center: [35.388228020107945, 139.42707616563885],
@@ -118,6 +119,8 @@ let detailPanelOrder = [];
 
 
 window.onload = function() {
+    initSystemUI();
+
     map = L.map('map', {
         center: MAP_CONFIG.center,
         zoom: MAP_CONFIG.zoom,

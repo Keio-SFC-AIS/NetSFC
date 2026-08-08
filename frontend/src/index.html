@@ -60,6 +60,75 @@
     }
     .floating-title a:hover { text-decoration: underline; }
 
+    .server-status-indicator {
+      position: absolute;
+      top: 16px;
+      right: 68px;
+      z-index: 11;
+      display: inline-flex;
+      align-items: center;
+      gap: 0;
+      padding: 0;
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+      font-size: 12px;
+      font-weight: 600;
+      color: #1f2937;
+      backdrop-filter: blur(8px);
+      overflow: hidden;
+      cursor: default;
+      transition: width 0.22s cubic-bezier(0.16, 1, 0.3, 1), padding 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, color 0.2s ease;
+      white-space: nowrap;
+    }
+    .server-status-indicator:hover,
+    .server-status-indicator:focus-within {
+      width: 138px;
+      padding: 0 10px;
+      gap: 8px;
+    }
+    .server-status-indicator .dot {
+      width: 10px;
+      height: 10px;
+      margin-left: 4px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.45);
+      animation: server-dot-pulse 1.8s infinite;
+    }
+    #server-status-text {
+      opacity: 0;
+      max-width: 0;
+      overflow: hidden;
+      transition: opacity 0.16s ease, max-width 0.2s ease;
+    }
+    .server-status-indicator:hover #server-status-text,
+    .server-status-indicator:focus-within #server-status-text {
+      opacity: 1;
+      max-width: 110px;
+    }
+    .server-status-indicator.is-timeout {
+      border-color: rgba(220, 38, 38, 0.28);
+      color: #b91c1c;
+    }
+    .server-status-indicator.is-timeout .dot {
+      background: #dc2626;
+      box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.5);
+    }
+    .server-status-indicator.is-ok {
+      border-color: rgba(16, 185, 129, 0.26);
+      color: #166534;
+    }
+    @keyframes server-dot-pulse {
+      0% { box-shadow: 0 0 0 0 currentColor; }
+      75% { box-shadow: 0 0 0 8px transparent; }
+      100% { box-shadow: 0 0 0 0 transparent; }
+    }
+
     .category-chips-bar {
       position: absolute;
       top: 16px;
@@ -136,6 +205,100 @@
     .settings-modal.open {
       display: flex;
       opacity: 1;
+    }
+
+    .service-broadcast-modal {
+      display: block;
+      position: fixed;
+      top: 82px;
+      right: 16px;
+      width: min(440px, calc(100vw - 24px));
+      pointer-events: none;
+      z-index: 2600;
+      opacity: 0;
+      transform: translateX(120%);
+      transition: opacity 0.25s ease, transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .service-broadcast-modal.open {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: auto;
+    }
+    .service-broadcast-card {
+      width: 100%;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
+      overflow: hidden;
+      border: 1px solid rgba(31, 41, 55, 0.1);
+    }
+    .service-broadcast-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 16px 18px;
+      border-bottom: 1px solid #ececec;
+    }
+    .service-broadcast-head h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+      color: #111827;
+    }
+    .service-broadcast-close {
+      border: none;
+      background: #f3f4f6;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      cursor: pointer;
+      color: #4b5563;
+    }
+    .service-broadcast-body {
+      padding: 16px 18px 20px 18px;
+    }
+    .service-broadcast-type {
+      display: inline-flex;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      padding: 4px 8px;
+      border-radius: 999px;
+      margin-bottom: 10px;
+      border: 1px solid transparent;
+    }
+    .service-broadcast-type.type-info {
+      background: #e0f2fe;
+      color: #0369a1;
+      border-color: #bae6fd;
+    }
+    .service-broadcast-type.type-warning {
+      background: #fff7ed;
+      color: #b45309;
+      border-color: #fed7aa;
+    }
+    .service-broadcast-type.type-maintenance {
+      background: #f3e8ff;
+      color: #6b21a8;
+      border-color: #ddd6fe;
+    }
+    .service-broadcast-type.type-danger {
+      background: #fee2e2;
+      color: #b91c1c;
+      border-color: #fecaca;
+    }
+    #service-broadcast-message {
+      margin: 0;
+      white-space: pre-wrap;
+      line-height: 1.55;
+      font-size: 14px;
+      color: #1f2937;
     }
     .settings-modal-content {
       width: 90%;
@@ -1042,6 +1205,15 @@
         top: 16px;
         right: 64px;
       }
+      .server-status-indicator {
+        top: 16px;
+        right: 12px;
+      }
+      .service-broadcast-modal {
+        top: 68px;
+        right: 12px;
+        width: calc(100vw - 24px);
+      }
     }
 
     @media (max-width: 600px) {
@@ -1112,6 +1284,11 @@
   <a href="homepage.html">Back to measurement page</a>
 </div>
 
+<div id="server-status-indicator" class="server-status-indicator is-ok" title="Server status">
+  <span class="dot" aria-hidden="true"></span>
+  <span id="server-status-text">Checking server...</span>
+</div>
+
 <div class="category-chips-bar">
   <button class="chip-btn" data-category="all">All</button>
   <button class="chip-btn" data-category="restaurants">🍽️ Restaurants</button>
@@ -1150,6 +1327,19 @@
   </div>
 </div>
 
+<div id="service-broadcast-modal" class="service-broadcast-modal" role="dialog" aria-modal="true" aria-labelledby="service-broadcast-title">
+  <div class="service-broadcast-card">
+    <div class="service-broadcast-head">
+      <h3 id="service-broadcast-title">Service Broadcast</h3>
+      <button id="service-broadcast-close" class="service-broadcast-close" aria-label="Close">&times;</button>
+    </div>
+    <div class="service-broadcast-body">
+      <span id="service-broadcast-type" class="service-broadcast-type type-info">INFO</span>
+      <p id="service-broadcast-message"></p>
+    </div>
+  </div>
+</div>
+
 <button id="locate-btn" class="locate-btn" title="Re-center on my location">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
     <path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3H19c-.412-3.86-3.14-6.588-7-7V2.06h-2V4c-3.86.412-6.588 3.14-7 7H1.06v2H3c.412 3.86 3.14 6.588 7 7v1.94h2V20c3.86-.412 6.588-3.14 7-7h1.94v-2zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/>
@@ -1160,7 +1350,7 @@
 
 <div id="assistant-panel" class="assistant-panel">
   <div class="assistant-panel-header">
-    <div class="assistant-panel-title">🤖 NetSFC AI Advisor</div>
+    <div class="assistant-panel-title">🤖 AI Advisor</div>
     <button id="assistant-panel-close" class="gm-close-btn" aria-label="Close">&times;</button>
   </div>
   <div id="assistant-messages" class="assistant-messages">
