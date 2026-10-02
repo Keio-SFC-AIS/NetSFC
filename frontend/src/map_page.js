@@ -174,7 +174,10 @@ window.onload = function() {
     });
     new LocateControl().addTo(map);
 
-    baseTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
+    const cartoApiKey = (window.ENV && window.ENV.CARTO_API_KEY) || '';
+    const cartoTileUrl = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
+        + (cartoApiKey ? `?key=${encodeURIComponent(cartoApiKey)}` : '');
+    baseTileLayer = L.tileLayer(cartoTileUrl, {
         attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         maxZoom: MAP_CONFIG.maxZoom,
         maxNativeZoom: 19,
